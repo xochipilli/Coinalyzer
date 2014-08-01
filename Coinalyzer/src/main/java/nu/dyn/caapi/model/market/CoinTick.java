@@ -24,7 +24,7 @@ public class CoinTick implements Tick {
 	private int trades = 0;
 
 	/**
-	 * @param endTime
+	 * @param beginTime
 	 *            the end time of the tick period
 	 * @param openPrice
 	 *            the open price of the tick period
@@ -37,9 +37,9 @@ public class CoinTick implements Tick {
 	 * @param volume
 	 *            the volume of the tick period
 	 */
-	public CoinTick(DateTime endTime, double openPrice, double highPrice,
+	public CoinTick(DateTime beginTime, double openPrice, double highPrice,
 			double lowPrice, double closePrice, double volume) {
-		this.endTime = endTime;
+		this.beginTime = beginTime;
 		this.openPrice = openPrice;
 		this.maxPrice = highPrice;
 		this.minPrice = lowPrice;

@@ -11,7 +11,7 @@ import org.json.JSONArray;
 
 public class Poloniex {
 	
-	private CoinPair coinPair;
+	private CoinPairInfo coinPair;
 	public Chart chart;
 //	public Chart chart_5m;
 //	public Chart chart_15m;
@@ -21,7 +21,7 @@ public class Poloniex {
 //	public Chart chart_4h;
 	Timeframe t;
 	
-	public Poloniex(CoinPair coinPair, Timeframe t) {
+	public Poloniex(CoinPairInfo coinPair, Timeframe t) {
 
 		this.coinPair = coinPair;
 		this.t = t;
@@ -29,13 +29,13 @@ public class Poloniex {
 	}
 	
 	protected String constructURL(int period) {
-
+System.out.println("https://poloniex.com/public?command=returnChartData&currencyPair="+coinPair.getCurrencyPairId()+"&start="+t.getStart()+"&end="+t.getEnd()+"&period="+period);
 		return "https://poloniex.com/public?command=returnChartData&currencyPair="+coinPair.getCurrencyPairId()+"&start="+t.getStart()+"&end="+t.getEnd()+"&period="+period;
 	}
 	
 	private void getCharts() {
 		
-		chart = getChart(t, Constants.period_5m);
+		chart = getChart(t, Constants.period_15m);
 //		chart_5m = getChart(t, Constants.period_5m);
 //		chart_15m = getChart(t, Constants.period_15m);
 //		chart_30m = getChart(t, Constants.period_30m);
@@ -64,7 +64,7 @@ public class Poloniex {
 			    			json.getJSONObject(i).getDouble("volume")	));
 		    }
 		    
-		    return new Chart(arr);
+		    return new Chart(coinPair.getCurrencyPairId(), arr);
 		    
 		} catch (IOException e) {
 			System.out.println("Error: "+ e);

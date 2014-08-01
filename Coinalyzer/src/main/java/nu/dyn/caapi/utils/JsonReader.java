@@ -12,7 +12,7 @@ import java.nio.charset.Charset;
 
 import javax.net.ssl.HttpsURLConnection;
 
-import nu.dyn.caapi.bot.Config;
+import nu.dyn.caapi.bot.AppConfig;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -29,7 +29,7 @@ public class JsonReader {
 	}
 
 	public static JSONArray readJsonFromUrl(String url) throws IOException, JSONException {
-		Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(Config.proxyHost, Config.proxyPort));
+		Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(AppConfig.proxyHost, AppConfig.proxyPort));
 		//InputStream 
 		
 		URL server = new URL(url);

@@ -2,15 +2,23 @@
 <%@ page session="false" %>
 <html>
 <head>
-	<title>Home</title>
+	<title>Coinalyzer</title>
 </head>
 <body>
-<h1>
-	Hello!  
-</h1>
 
- ${chart}
+<p align="left">
+
+<font color="red">Coin</font><font color="green">alyzer</font>
+<a href="config">Configuration</a>
+</p>  
+
+<br/>
+
+ <img src="chart.png">
  
+ <% 
+ 	System.out.println("coinPairs");
+ %>
  
 </body>
 </html>

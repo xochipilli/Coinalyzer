@@ -1,14 +1,14 @@
 package nu.dyn.caapi.model.market;
 
-public class CoinPair {
+public class CoinPairInfo {
 	private final String coinBase;
 	private final String coinCounter;
 	private final String coinPairId;
 	
-	public CoinPair(String currencyBase, String currencyCounter) {
-		this.coinBase = currencyBase;
-		this.coinCounter = currencyCounter;
-		this.coinPairId = currencyBase+"_"+currencyCounter;
+	public CoinPairInfo(String coinBase, String coinCounter) {
+		this.coinBase = coinBase;
+		this.coinCounter = coinCounter;
+		this.coinPairId = coinBase+"_"+coinCounter;
 	}
 	
 	public String getCurrencyBase() {
