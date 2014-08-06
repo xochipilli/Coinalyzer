@@ -3,12 +3,15 @@ package nu.dyn.caapi.model.market;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Paint;
-import java.sql.Date;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
+import org.apache.activemq.util.ByteArrayOutputStream;
+import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.axis.NumberAxis;
@@ -25,6 +28,9 @@ import org.jfree.data.xy.XYDataset;
 import eu.verdelhan.ta4j.Indicator;
 import eu.verdelhan.ta4j.Tick;
 import eu.verdelhan.ta4j.TimeSeries;
+import eu.verdelhan.ta4j.indicators.simple.ClosePriceIndicator;
+import eu.verdelhan.ta4j.indicators.trackers.EMAIndicator;
+import eu.verdelhan.ta4j.indicators.trackers.SMAIndicator;
 import eu.verdelhan.ta4j.series.DefaultTimeSeries;
 
 public class Chart {
@@ -32,25 +38,13 @@ public class Chart {
 	public DefaultOHLCDataset ohlcDataSet;
 	String coinPairName;
 	JFreeChart chart;
-	XYPlot mainPlot;
+	public byte[] PNGChart;
+	private XYPlot mainPlot;
     private DateAxis domainAxis = new DateAxis("Date");
     private NumberAxis rangeAxis = new NumberAxis("Price");
+    private CandlestickRenderer renderer;
+	private Timeframe timeframe;
 	
-//	public ArrayList<Candlestick> candlesticks;
-//	public long start;
-//	public long end;
-//	public int period;
-//	
-//	public Chart(ArrayList<Candlestick> c, int period) {
-//		this.candlesticks = c;
-//		this.period = period;
-//		this.start = c.get(0).date;
-//		this.end = c.get(c.size()-1).date;
-//		
-//	}
-//	
-	
-
     /**
 	* Builds a JFreeChart time series from a Ta4j time series and an indicator.
 	* @param tickSeries the ta4j time series
@@ -59,6 +53,7 @@ public class Chart {
 	* @return the JFreeChart time series collection
 	*/
     public static  org.jfree.data.time.TimeSeriesCollection buildChartTimeSeries(TimeSeries tickSeries, Indicator<Double> indicator, String name) {
+    	
     	org.jfree.data.time.TimeSeries series = new org.jfree.data.time.TimeSeries(name);
     	for (int i = 0; i < tickSeries.getSize(); i++) {
             Tick tick = tickSeries.getTick(i);
@@ -69,10 +64,10 @@ public class Chart {
         
     }
     
-    
-	public Chart(String coinPairName, ArrayList<CoinTick> ticks) {
-		this.coinPairName = coinPairName;
+	public Chart(String coinPairName, ArrayList<CoinTick> ticks, Timeframe t) {
 		
+		this.coinPairName = coinPairName;
+		this.timeframe = t;
 		this.series = new DefaultTimeSeries(ticks);
 		
 		OHLCDataItem[] data = new OHLCDataItem[ticks.size()];
@@ -87,8 +82,128 @@ public class Chart {
 			 
 		}
 		ohlcDataSet = new DefaultOHLCDataset(coinPairName, data);
+	
+		prepareChart();
+	}
+
+	void addIndicators() {
+		
+		ClosePriceIndicator closePrice = new ClosePriceIndicator(series);
+		SMAIndicator i_sma50 = new SMAIndicator(closePrice, 50);
+		SMAIndicator i_sma20 = new SMAIndicator(closePrice, 20);
+		EMAIndicator i_ema20 = new EMAIndicator(closePrice, 20);
+
+		addIndicator(Chart.buildChartTimeSeries(series, i_sma50, "50 SMA"));
+		addIndicator(Chart.buildChartTimeSeries(series, i_sma20, "20 SMA"));
+		addIndicator(Chart.buildChartTimeSeries(series, i_ema20, "20 EMA"));
+		
+	}
+
+	void addIndicator(XYDataset set) {
+		
+		int n = mainPlot.getDatasetCount();
+		
+		mainPlot.setDataset(n, set);
+		
+		XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
+		renderer.setSeriesStroke(n, new BasicStroke(1.0f));
+		renderer.setDrawOutlines(false);
+		mainPlot.setRenderer(n, renderer);
+
 	}
 	
+	/**
+	* Get previously generated chart 
+	* @return byte[] PNG image of chart
+	*/
+	public byte[] getChart(boolean rePlot) {
+
+		if (rePlot || chart==null)
+			plotChart();
+		    
+		return PNGChart;
+	}
+
+	/**
+	* Generate and return chart with specified date range from - to 
+	* @param from Start date 
+	* @param to End date
+	* @return byte[] PNG image of chart
+	*/
+	public byte[] getChart(Date from, Date to) {
+		
+		timeframe.setStart(from);
+		timeframe.setEnd(to);
+		
+		return getChart(true);
+	}
+	
+	public void prepareChart() {
+        
+        renderer = new CandlestickRenderer() {
+        	private static final long serialVersionUID = 1L;
+
+			// set the border color to be the same as the body
+        	@Override
+        	public Paint getItemPaint(int row, int column) {
+        		//determine up or down candle 
+        	    XYDataset dataset = getPlot().getDataset();
+        	    OHLCDataset highLowData = (OHLCDataset) dataset;
+        	    int series = row, item = column;
+        	    Number yOpen = highLowData.getOpen(series, item);
+        	    Number yClose = highLowData.getClose(series, item);
+        	    boolean isUpCandle = yClose.doubleValue() > yOpen.doubleValue();
+
+        	    //return the same color as that used to fill the candle
+        	    if (isUpCandle)
+        	        return getUpPaint();
+        	    else
+        	        return getDownPaint();
+        	}
+        };
+        renderer.setUseOutlinePaint(false);
+        renderer.setDrawVolume(true);
+        renderer.setDownPaint(Color.RED);
+        renderer.setUpPaint(Color.GREEN);
+        
+        rangeAxis.setAutoRangeIncludesZero(false);
+        rangeAxis.setAutoRange(true);
+        
+    	//plotChart();
+		
+	}
+	
+	/**
+	* Plot chart with specified date range from - to 
+	* @param from Start date 
+	* @param to End date
+	*/
+	void plotChart() {
+		System.out.println("reploting");
+		
+		domainAxis.setRange(timeframe.getStart(), timeframe.getEnd());
+		
+		mainPlot = new XYPlot(ohlcDataSet, domainAxis, rangeAxis, renderer);
+		
+		chart = new JFreeChart(coinPairName, null, mainPlot, true);
+		
+		addIndicators();
+		
+		writePNG();
+		
+	}
+	
+	public void writePNG() {
+	    try {
+	    	ByteArrayOutputStream out = new ByteArrayOutputStream();
+			ChartUtilities.writeChartAsPNG(out, chart, 800, 400);
+			PNGChart = out.toByteArray();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	    
 	@Override
 	public String toString() {
 
@@ -100,79 +215,4 @@ public class Chart {
 		return s+"]";
 	}
 
-	public void addIndicator(XYDataset set) {
-		
-		int n = mainPlot.getDatasetCount();
-		
-		mainPlot.setDataset(n, set);
-		
-		XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
-		renderer.setSeriesStroke(n, new BasicStroke(1.0f));
-		renderer.setDrawOutlines(false);
-		mainPlot.setRenderer(n, renderer);
-
-		
-	}
-	
-	public JFreeChart getChart() {
-		
-		chart = new JFreeChart(coinPairName, null, mainPlot, true);
-		return chart;
-	}
-	
-	public void prepareChart() {
-        
-        CandlestickRenderer renderer = new CandlestickRenderer() {
-        		// set the border color to be the same as the body
-        		@Override
-        	    public Paint getItemPaint(int row, int column) {
-        	        //determine up or down candle 
-        	        XYDataset dataset = getPlot().getDataset();
-        	        OHLCDataset highLowData = (OHLCDataset) dataset;
-        	        int series = row, item = column;
-        	        Number yOpen = highLowData.getOpen(series, item);
-        	        Number yClose = highLowData.getClose(series, item);
-        	        boolean isUpCandle = yClose.doubleValue() > yOpen.doubleValue();
-
-        	        //return the same color as that used to fill the candle
-        	        if (isUpCandle)
-        	            return getUpPaint();
-        	        else
-        	            return getDownPaint();
-        	    }
-        };
-        
-        
-        renderer.setUseOutlinePaint(false);
-        
-        renderer.setDownPaint(Color.RED);
-        renderer.setUpPaint(Color.GREEN);
-        
-        renderer.setDrawVolume(true);
-       
-        try {
-        	DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-            domainAxis.setRange(new Date(dateFormat.parse("25/07/2014").getTime()), new Date(dateFormat.parse("28/07/2014").getTime()));
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-        
-        rangeAxis.setAutoRangeIncludesZero(false);
-        rangeAxis.setAutoRange(true);
-        mainPlot = new XYPlot(ohlcDataSet, domainAxis, rangeAxis, renderer);
-        
-        
-        ///mainPlot.getDataRange(rangeAxis);
-	}
-	
-//	@Override
-//	public String toString() {
-//
-//		String s = "["+period+"s] ";
-//		
-//		for (Candlestick c: candlesticks) {
-//			s += c;
-//		}
-//		return s+"\n";
-//	}
 }

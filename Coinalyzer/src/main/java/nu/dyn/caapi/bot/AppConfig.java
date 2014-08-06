@@ -5,7 +5,6 @@ import nu.dyn.caapi.utils.ConfigParser;
 import org.apache.commons.configuration.ConfigurationException;
 import org.springframework.stereotype.Service;
 
-@Service
 public class AppConfig {
 	public static final String proxyHost = "sapproxy";
 	public static final int proxyPort = 3128;
@@ -14,7 +13,7 @@ public class AppConfig {
 	public String coinPrimary;
 	public String coinCounter;
 
-	AppConfig() throws ConfigurationException {
+	public AppConfig() throws ConfigurationException {
 		ConfigParser.parse(configurationFile, this);
 	}
 

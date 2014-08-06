@@ -9,6 +9,7 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.json.JSONArray;
 
+
 public class Poloniex {
 	
 	private CoinPairInfo coinPair;
@@ -25,30 +26,32 @@ public class Poloniex {
 
 		this.coinPair = coinPair;
 		this.t = t;
-		getCharts();
+		getChart(true);
 	}
 	
-	protected String constructURL(int period) {
-System.out.println("https://poloniex.com/public?command=returnChartData&currencyPair="+coinPair.getCurrencyPairId()+"&start="+t.getStart()+"&end="+t.getEnd()+"&period="+period);
-		return "https://poloniex.com/public?command=returnChartData&currencyPair="+coinPair.getCurrencyPairId()+"&start="+t.getStart()+"&end="+t.getEnd()+"&period="+period;
+	protected String constructURL() {
+		return "https://poloniex.com/public?command=returnChartData&currencyPair="+coinPair.getCurrencyPairId()+"&start="+t.getStart().getTime()/1000+"&end="+t.getEnd().getTime()/1000+"&period="+t.getPeriod();
 	}
 	
-	private void getCharts() {
+	public void setPeriod(int period) {
 		
-		chart = getChart(t, Constants.period_15m);
-//		chart_5m = getChart(t, Constants.period_5m);
-//		chart_15m = getChart(t, Constants.period_15m);
-//		chart_30m = getChart(t, Constants.period_30m);
-//		chart_1h = getChart(t, Constants.period_1h);
-//		chart_2h = getChart(t, Constants.period_2h);
-//		chart_4h = getChart(t, Constants.period_4h);
+		t.setPeriod(period);
+		getChart(true);
 	}
-		
-	private Chart getChart(Timeframe timeframe, int period) {
+	
+	public Chart getChart(boolean refresh) {
+	
 		try {
 		
-			String URL = constructURL(period);
-		    JSONArray json = JsonReader.readJsonFromUrl(URL);
+			String URL = constructURL();
+			String filename = "poloniex_"+coinPair.getCurrencyPairId()+"_"+t.getPeriod()+".json";
+			
+			JSONArray json;
+			
+			if (refresh)
+				 json = JsonReader.readJsonFromUrl(URL, filename);
+			else
+				json = JsonReader.readJson(URL, filename);
 		    
 //		    ArrayList<Candlestick> arr = new ArrayList<Candlestick>() ;
 		    ArrayList<CoinTick> arr = new ArrayList<CoinTick>() ;
@@ -64,7 +67,7 @@ System.out.println("https://poloniex.com/public?command=returnChartData&currency
 			    			json.getJSONObject(i).getDouble("volume")	));
 		    }
 		    
-		    return new Chart(coinPair.getCurrencyPairId(), arr);
+		    chart = new Chart(coinPair.getCurrencyPairId(), arr, t);
 		    
 		} catch (IOException e) {
 			System.out.println("Error: "+ e);
