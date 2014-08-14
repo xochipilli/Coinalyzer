@@ -7,8 +7,8 @@ import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 
 import nu.dyn.caapi.bot.AppConfig;
-import nu.dyn.caapi.model.market.Constants;
-import nu.dyn.caapi.model.market.MarketClient;
+import nu.dyn.caapi.market.Constants;
+import nu.dyn.caapi.market.MarketClient;
 import nu.dyn.caapi.utils.TimeframeUtils;
 
 import org.apache.commons.configuration.ConfigurationException;
@@ -79,8 +79,8 @@ public class HomeController {
 			
 		}
 		
-		if (request.getParameter("refresh")!=null)
-			client.market.getChart(true);
+		if (request.getParameter("refresh")!=null) 
+			client.getRefreshedChart();
 
 		return "home";
 

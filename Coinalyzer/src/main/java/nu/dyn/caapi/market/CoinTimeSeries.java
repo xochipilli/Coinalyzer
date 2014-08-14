@@ -1,4 +1,4 @@
-package nu.dyn.caapi.model.market;
+package nu.dyn.caapi.market;
 
 import java.util.ArrayList;
 

@@ -1,4 +1,4 @@
-package nu.dyn.caapi.model.market;
+package nu.dyn.caapi.market;
 
 public class CoinPairInfo {
 	private final String coinBase;

@@ -1,12 +1,9 @@
-package nu.dyn.caapi.model.market;
+package nu.dyn.caapi.market;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Paint;
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -35,6 +32,7 @@ import eu.verdelhan.ta4j.series.DefaultTimeSeries;
 
 public class Chart {
 	public TimeSeries series;
+	
 	public DefaultOHLCDataset ohlcDataSet;
 	String coinPairName;
 	JFreeChart chart;
@@ -43,7 +41,10 @@ public class Chart {
     private DateAxis domainAxis = new DateAxis("Date");
     private NumberAxis rangeAxis = new NumberAxis("Price");
     private CandlestickRenderer renderer;
-	private Timeframe timeframe;
+	private Window window;
+	
+	EMAIndicator i_sma50;
+	EMAIndicator i_sma20;
 	
     /**
 	* Builds a JFreeChart time series from a Ta4j time series and an indicator.
@@ -52,7 +53,7 @@ public class Chart {
 	* @param name the name of the chart time series
 	* @return the JFreeChart time series collection
 	*/
-    public static  org.jfree.data.time.TimeSeriesCollection buildChartTimeSeries(TimeSeries tickSeries, Indicator<Double> indicator, String name) {
+    public static org.jfree.data.time.TimeSeriesCollection buildChartTimeSeries(TimeSeries tickSeries, Indicator<Double> indicator, String name) {
     	
     	org.jfree.data.time.TimeSeries series = new org.jfree.data.time.TimeSeries(name);
     	for (int i = 0; i < tickSeries.getSize(); i++) {
@@ -64,10 +65,10 @@ public class Chart {
         
     }
     
-	public Chart(String coinPairName, ArrayList<CoinTick> ticks, Timeframe t) {
+	public Chart(String coinPairName, ArrayList<CoinTick> ticks, Window t) {
 		
 		this.coinPairName = coinPairName;
-		this.timeframe = t;
+		this.window = t;
 		this.series = new DefaultTimeSeries(ticks);
 		
 		OHLCDataItem[] data = new OHLCDataItem[ticks.size()];
@@ -90,11 +91,11 @@ public class Chart {
 		
 		ClosePriceIndicator closePrice = new ClosePriceIndicator(series);
 		SMAIndicator i_sma50 = new SMAIndicator(closePrice, 50);
-		SMAIndicator i_sma20 = new SMAIndicator(closePrice, 20);
+		EMAIndicator i_ema50 = new EMAIndicator(closePrice, 50);
 		EMAIndicator i_ema20 = new EMAIndicator(closePrice, 20);
 
 		addIndicator(Chart.buildChartTimeSeries(series, i_sma50, "50 SMA"));
-		addIndicator(Chart.buildChartTimeSeries(series, i_sma20, "20 SMA"));
+		addIndicator(Chart.buildChartTimeSeries(series, i_ema50, "50 EMA"));
 		addIndicator(Chart.buildChartTimeSeries(series, i_ema20, "20 EMA"));
 		
 	}
@@ -132,8 +133,8 @@ public class Chart {
 	*/
 	public byte[] getChart(Date from, Date to) {
 		
-		timeframe.setStart(from);
-		timeframe.setEnd(to);
+		window.setStart(from);
+		window.setEnd(to);
 		
 		return getChart(true);
 	}
@@ -181,7 +182,7 @@ public class Chart {
 	void plotChart() {
 		System.out.println("reploting");
 		
-		domainAxis.setRange(timeframe.getStart(), timeframe.getEnd());
+		domainAxis.setRange(window.getStart(), window.getEnd());
 		
 		mainPlot = new XYPlot(ohlcDataSet, domainAxis, rangeAxis, renderer);
 		

@@ -1,4 +1,4 @@
-package nu.dyn.caapi.model.market;
+package nu.dyn.caapi.market;
 
 public class CoinSymbols {
 	public static final String BTC = "BTC";

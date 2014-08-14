@@ -18,7 +18,7 @@
 <a href="/caapi?refresh">Refresh</a>
 
 <br/>
-
+  	
 Period: <a href="/caapi/?period=5m">5m</a> <a href="/caapi/?period=15m">15m</a> <a href="/caapi/?period=30m">30m</a> <a href="/caapi/?period=2h">2h</a> <a href="/caapi/?period=4h">4h</a>
 
 <br />
