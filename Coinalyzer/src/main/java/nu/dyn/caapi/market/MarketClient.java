@@ -3,15 +3,10 @@ package nu.dyn.caapi.market;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 
 import nu.dyn.caapi.bot.AppConfig;
 import nu.dyn.caapi.market.exchanges.Poloniex;
-import nu.dyn.caapi.model.Analytics;
-import nu.dyn.caapi.nn.MyPerceptron;
-import nu.dyn.caapi.nn.TrainDataItem;
 
-import org.apache.commons.configuration.ConfigurationException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -19,7 +14,7 @@ public class MarketClient {
 	public Market market;
 	public AppConfig appConfig;
 	
-	public MarketClient() throws ConfigurationException {
+	public MarketClient() {
 		
 		appConfig = new AppConfig();
 		
@@ -32,10 +27,6 @@ public class MarketClient {
 			market = new Poloniex(coinPair, timeframe);
 			market.getAllSeries(false);
 
-		Analytics analytics = new Analytics(market.series_2h);
-		
-			
-			
 		} catch (ParseException e) {
 			//TODO:
 			System.out.println("Error: "+ e);

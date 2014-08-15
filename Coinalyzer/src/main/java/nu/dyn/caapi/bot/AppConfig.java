@@ -3,17 +3,17 @@ package nu.dyn.caapi.bot;
 import nu.dyn.caapi.utils.ConfigParser;
 
 import org.apache.commons.configuration.ConfigurationException;
-import org.springframework.stereotype.Service;
 
 public class AppConfig {
 	public static final String proxyHost = "sapproxy";
 	public static final int proxyPort = 3128;
 	public static final String configurationFile = "coinalyzer_config.xml";
+	//public static final String projectDirectory = "coinalyzer/"; //TODO: ?
 
-	public String coinPrimary;
-	public String coinCounter;
+	public String coinPrimary = "BTC";
+	public String coinCounter = "XMR";
 
-	public AppConfig() throws ConfigurationException {
+	public AppConfig() {
 		ConfigParser.parse(configurationFile, this);
 	}
 

@@ -3,7 +3,7 @@ package nu.dyn.caapi.market;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import nu.dyn.caapi.utils.JsonReader;
+import nu.dyn.caapi.utils.MyJsonReader;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -52,7 +52,7 @@ public abstract class Market {
 		series_2h = getSeries(Constants.period_2h, refresh);
 		series_4h = getSeries(Constants.period_4h, refresh);
 		
-		chart = new Chart(coinPair.getCurrencyPairId(), series_5m, t);	// TODO: choose t.length series
+		chart = new Chart(coinPair.getCurrencyPairId(), series_2h, t);	// TODO: choose t.length series
 		
 	}
 	
@@ -68,9 +68,9 @@ public abstract class Market {
 			JSONArray json;
 			
 			if (refresh)
-				 json = JsonReader.readJsonFromUrl(URL, filename);
+				 json = MyJsonReader.readJsonFromUrl(URL, filename);
 			else
-				json = JsonReader.readJson(URL, filename);
+				json = MyJsonReader.readJson(URL, filename);
 		    
 		    for (int i=0; i<json.length(); i++) {
 		    	arr.add(new CoinTick(
@@ -91,7 +91,7 @@ public abstract class Market {
 	
 	@Override
 	public String toString() {
-		return chart.toString(); //_5m+chart_15m+chart_30m+chart_1h+chart_2h+chart_4h;
+		return chart.toString(); //TODO: _5m+chart_15m+chart_30m+chart_1h+chart_2h+chart_4h;
 	}	
 		
 }

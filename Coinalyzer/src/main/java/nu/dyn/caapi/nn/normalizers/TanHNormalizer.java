@@ -62,11 +62,11 @@ public class TanHNormalizer extends DataNormalizer {
 		for (int i=0; i<dataset.size(); i++) {
 			TrainDataItem tdi = dataset.get(i);
 			
-			tdi.i_open = 0.5 * ( tanh.value(0.01 * (tdi.i_open - value_mean) /  value_deviation ) + 1 );
-			tdi.i_low = 0.5 * ( tanh.value(0.01 * (tdi.i_low - value_mean) /  value_deviation ) + 1 );
-			tdi.i_high = 0.5 * ( tanh.value(0.01 * (tdi.i_high - value_mean) /  value_deviation ) + 1 );
-			tdi.i_close = 0.5 * ( tanh.value(0.01 * (tdi.i_close - value_mean) /  value_deviation ) + 1 );
-			tdi.i_volume = 0.5 * ( tanh.value(0.01 * (tdi.i_volume - value_mean) /  value_deviation ) + 1 );
+			tdi.norm_i_open = 0.5 * ( tanh.value(0.01 * (tdi.i_open - value_mean) /  value_deviation ) + 1 );
+			tdi.norm_i_low = 0.5 * ( tanh.value(0.01 * (tdi.i_low - value_mean) /  value_deviation ) + 1 );
+			tdi.norm_i_high = 0.5 * ( tanh.value(0.01 * (tdi.i_high - value_mean) /  value_deviation ) + 1 );
+			tdi.norm_i_close = 0.5 * ( tanh.value(0.01 * (tdi.i_close - value_mean) /  value_deviation ) + 1 );
+			tdi.norm_i_volume = 0.5 * ( tanh.value(0.01 * (tdi.i_volume - value_mean) /  value_deviation ) + 1 );
 
 //			tdi.o_open = 0.5 * ( tanh.value(0.01 * (tdi.o_open - value_mean) /  value_deviation ) + 1 );
 //			tdi.o_low = 0.5 * ( tanh.value(0.01 * (tdi.o_low - value_mean) /  value_deviation ) + 1 );
@@ -85,6 +85,7 @@ public class TanHNormalizer extends DataNormalizer {
 	* @param dataset DataSet be denormalized 
 	* @return Denormalized dataSet
 	*/
+	// remove?
 	public DataSet denormalize(DataSet dataset) {
 		
 		DataSet denorm_dataset = new DataSet(5, 5);
@@ -100,6 +101,8 @@ public class TanHNormalizer extends DataNormalizer {
 		
 	}
 
+	
+	//? remove
 	public double[] denormalize(double[] data) {
 		
 		Atanh atanh = new Atanh();

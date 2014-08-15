@@ -1,7 +1,5 @@
 package nu.dyn.caapi.nn;
 
-import org.apache.commons.lang3.ArrayUtils;
-
 import eu.verdelhan.ta4j.Tick;
 
 public class TrainDataItem {
@@ -11,6 +9,12 @@ public class TrainDataItem {
 	public double i_close;
 	public double i_volume;
 	
+	public double norm_i_open;
+	public double norm_i_low;
+	public double norm_i_high;
+	public double norm_i_close;
+	public double norm_i_volume;
+	
 	public double o_open;
 	public double o_low;
 	public double o_high;
@@ -19,19 +23,19 @@ public class TrainDataItem {
 	
 	public double[] indicators;
 	
-	public TrainDataItem(Tick input, Tick output) { //, double[] indicators) {
-	
-		i_open = input.getOpenPrice();
-		i_low = input.getMinPrice();
-		i_high = input.getMaxPrice();
-		i_close = input.getClosePrice();
-		i_volume = input.getVolume();
+	public TrainDataItem(Tick in, Tick out) { //, double[] indicators) {
 		
-		o_open = output.getOpenPrice();
-		o_low = output.getMinPrice();
-		o_high = output.getMaxPrice();
-		o_close = output.getClosePrice();
-		o_volume = output.getVolume();
+		i_open = out.getOpenPrice();
+		i_low = out.getMinPrice();
+		i_high = out.getMaxPrice();
+		i_close = out.getClosePrice();
+		i_volume = out.getVolume();
+		
+		o_open = out.getOpenPrice();
+		o_low = out.getMinPrice();
+		o_high = out.getMaxPrice();
+		o_close = out.getClosePrice();
+		o_volume = out.getVolume();
 		
 		//TODO: incorporate indicators
 		//this.indicators = indicators;
@@ -46,8 +50,16 @@ public class TrainDataItem {
 
 	public double[] getInputArray() {
 
-		return ArrayUtils.addAll(new double[] { i_open, i_low, i_high, i_close, i_volume }, indicators);
+		//return ArrayUtils.addAll(new double[] { i_open, i_low, i_high, i_close, i_volume }, indicators);
+		return new double[] { i_open, i_low, i_high, i_close, i_volume };
 		
 	}
+	
+	public double[] getNormalizedInputArray() {
+
+		return new double[] { norm_i_open, norm_i_low, norm_i_high, norm_i_close, norm_i_volume };
+		
+	}
+
 
 }

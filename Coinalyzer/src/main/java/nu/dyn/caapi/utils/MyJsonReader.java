@@ -21,8 +21,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 
-
-public class JsonReader {
+public class MyJsonReader {
 
 	private static String readAll(Reader rd) throws IOException {
 		StringBuilder sb = new StringBuilder();
@@ -34,6 +33,7 @@ public class JsonReader {
 	}
 	
 	public static JSONArray readJson(String url, String filename) throws IOException {
+		
 		try { 
 			String s = readFile(filename);
 			JSONArray json = new JSONArray(s);
@@ -48,8 +48,7 @@ public class JsonReader {
 		
 		Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(
 				AppConfig.proxyHost, AppConfig.proxyPort));
-		// InputStream
-
+		
 		URL server = new URL(url);
 		HttpsURLConnection conn = (HttpsURLConnection) server.openConnection(proxy);
 		InputStream is = conn.getInputStream();
@@ -81,6 +80,8 @@ public class JsonReader {
 		 
 		br.close();
 		
-		return sb.toString();
+		return new String(sb.toString());
+		
+		
 	}
 }

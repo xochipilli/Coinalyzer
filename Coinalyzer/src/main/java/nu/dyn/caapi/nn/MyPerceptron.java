@@ -9,7 +9,6 @@ import nu.dyn.caapi.nn.normalizers.TanHNormalizer;
 import org.neuroph.core.NeuralNetwork;
 import org.neuroph.core.learning.DataSet;
 import org.neuroph.core.learning.DataSetRow;
-import org.neuroph.core.learning.LearningRule;
 import org.neuroph.nnet.MultiLayerPerceptron;
 import org.neuroph.nnet.learning.MomentumBackpropagation;
 import org.neuroph.util.TransferFunctionType;
@@ -38,16 +37,9 @@ public class MyPerceptron {
 		DataSet trainingSet = new DataSet(5, 5);
 
 		for (int i = 0; i < dataset.size(); i++) {
-
-			double[] i_data = new double[] { dataset.get(i).i_open,
-					dataset.get(i).i_low, dataset.get(i).i_high,
-					dataset.get(i).i_close, dataset.get(i).i_volume };
-			double[] o_data = new double[] { dataset.get(i).o_open,
-					dataset.get(i).o_low, dataset.get(i).o_high,
-					dataset.get(i).o_close, dataset.get(i).o_volume };
-
+			double[] i_data = dataset.get(i).getNormalizedInputArray();
+			double[] o_data = dataset.get(i).getNormalizedInputArray();
 			trainingSet.addRow(new DataSetRow(i_data, o_data));
-
 		}
 		    
 		// create perceptron neural network
@@ -63,6 +55,7 @@ public class MyPerceptron {
 		myRule.setLearningRate(0.2);	// ?
 		myRule.setMomentum(0.7);		// ?
 		myRule.setMaxError(0.01);		// ?
+		myRule.setMaxIterations(10000);	// ?
 		myRule.setNeuralNetwork(myPerceptron);
 	    myPerceptron.setLearningRule(myRule);
 	    

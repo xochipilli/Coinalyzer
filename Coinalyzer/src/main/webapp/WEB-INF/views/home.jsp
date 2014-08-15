@@ -25,16 +25,15 @@ Period: <a href="/caapi/?period=5m">5m</a> <a href="/caapi/?period=15m">15m</a> 
 
 Timeframe: <a href="/caapi/?timeframe=6h">6h</a> <a href="/caapi/?timeframe=24h">24h</a> <a href="/caapi/?timeframe=2d">2d</a> <a href="/caapi/?timeframe=4d">4d</a> <a href="/caapi/?timeframe=1w">1w</a> <a href="/caapi/?timeframe=2w">2w</a> <a href="/caapi/?timeframe=1m">1m</a> <a href="/caapi/?timeframe=all">all</a>
 
-<br/>
-
-
-
+<br />
 
  <img src="chart.png">
- 
- <% 
- 	System.out.println("coinPairs");
- %>
- 
+
+<br /> 
+
+<a href="/caapi/?train">Train NN</a>
+
+<br />
+
 </body>
 </html>
