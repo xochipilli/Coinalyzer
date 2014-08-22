@@ -113,6 +113,7 @@ public class Chart {
 
 	}
 	
+	
 	/**
 	* Get previously generated chart 
 	* @return byte[] PNG image of chart

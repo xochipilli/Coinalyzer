@@ -49,12 +49,14 @@ public class HomeController {
 
 		String p_timeframe = request.getParameter("timeframe");
 		if (p_timeframe != null) {
-			if (p_timeframe.equals("1m")) {
-				client.setChartRange(TimeframeUtils.getLastNWeeksTimeframe(4));
+			if (p_timeframe.equals("all")) {
+				client.setChartRangeAll();
+			} else if (p_timeframe.equals("1m")) {
+				client.setChartRange(TimeframeUtils.getLastNDaysTimeframe(30));
 			} else if (p_timeframe.equals("2w")) {
-				client.setChartRange(TimeframeUtils.getLastNWeeksTimeframe(2));
+				client.setChartRange(TimeframeUtils.getLastNDaysTimeframe(14));
 			} else if (p_timeframe.equals("1w")) {
-				client.setChartRange(TimeframeUtils.getLastNWeeksTimeframe(1));
+				client.setChartRange(TimeframeUtils.getLastNDaysTimeframe(7));
 			} else if (p_timeframe.equals("4d")) {
 				client.setChartRange(TimeframeUtils.getLastNDaysTimeframe(4));
 			} else if (p_timeframe.equals("2d")) {
@@ -85,7 +87,7 @@ public class HomeController {
 			client.getRefreshedChart();
 
 		if (request.getParameter("train") != null) {
-			analytics.init(client.market.series_4h);
+			analytics.init();
 			analytics.train();
 		}
 			

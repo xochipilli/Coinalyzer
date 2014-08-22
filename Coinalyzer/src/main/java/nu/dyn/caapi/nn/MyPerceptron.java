@@ -17,10 +17,10 @@ import org.neuroph.util.TransferFunctionType;
 //http://www.slideshare.net/mring33/using-java
 //https://fedcsis.org/proceedings/2013/pliks/277.pdf
 public class MyPerceptron {
-	
+
 	NeuralNetwork myPerceptron;
 	DataNormalizer normalizer;
-	
+
 	/**
 	 * Create NN
 	 * 
@@ -38,32 +38,33 @@ public class MyPerceptron {
 
 		for (int i = 0; i < dataset.size(); i++) {
 			double[] i_data = dataset.get(i).getNormalizedInputArray();
-			double[] o_data = dataset.get(i).getNormalizedInputArray();
+			double[] o_data = dataset.get(i).getOutputArray();
 			trainingSet.addRow(new DataSetRow(i_data, o_data));
 		}
-		    
+
 		// create perceptron neural network
 		Vector<Integer> layers = new Vector<Integer>();
-	    layers.add(5);
-	    layers.add(2 * 5 + 1);
-	    layers.add(5);
-	        
-	    myPerceptron = new MultiLayerPerceptron(layers, TransferFunctionType.TANH);
-		
+		layers.add(5);
+		layers.add(2 * 5 + 1);
+		layers.add(5);
+
+		myPerceptron = new MultiLayerPerceptron(layers,
+				TransferFunctionType.TANH);
+
 		MomentumBackpropagation myRule = new MomentumBackpropagation();
-	    myRule.setBatchMode(false);
-		myRule.setLearningRate(0.2);	// ?
-		myRule.setMomentum(0.7);		// ?
-		myRule.setMaxError(0.01);		// ?
-		myRule.setMaxIterations(10000);	// ?
+		myRule.setBatchMode(false);
+		myRule.setLearningRate(0.2); // ?
+		myRule.setMomentum(0.7); // ?
+		myRule.setMaxError(0.01); // ?
+		myRule.setMaxIterations(10000); // ?
 		myRule.setNeuralNetwork(myPerceptron);
-	    myPerceptron.setLearningRule(myRule);
-	    
+		myPerceptron.setLearningRule(myRule);
+
 		// learn the training set
 		myPerceptron.learn(trainingSet);
 
 		// test perceptron
-		System.out.println("Testing trained perceptron");
+		System.out.println("Testing trained perceptron with " + trainingSet.getInputSize() + " inputs");
 		testNeuralNetwork(myPerceptron, trainingSet);
 
 		// save trained perceptron
@@ -88,21 +89,24 @@ public class MyPerceptron {
 	 *            data set used for testing
 	 */
 	public void testNeuralNetwork(NeuralNetwork neuralNet, DataSet testSet) {
-		
-		//DataSet n_testSet = normalizer.denormalize(testSet);
-		
-		for (int i=0; i<testSet.size(); i++) {
-				
+
+		// DataSet n_testSet = normalizer.denormalize(testSet);
+
+		for (int i = 0; i < testSet.size(); i++) {
+
 			DataSetRow trainingElement = testSet.getRowAt(i);
 			neuralNet.setInput(trainingElement.getInput());
 			neuralNet.calculate();
-			
+
 			double[] networkOutput = neuralNet.getOutput();
-			//	double[] n_networkOutput = normalizer.denormalize(neuralNet.getOutput());
-			
-			System.out.print("Input: " + Arrays.toString(testSet.getRowAt(i).getInput()));
+			// double[] n_networkOutput =
+			// normalizer.denormalize(neuralNet.getOutput());
+
+			System.out.print("Input: "
+					+ Arrays.toString(normalizer.denormalize(testSet
+							.getRowAt(i).getInput())));
 			System.out.println(" Output: " + Arrays.toString(networkOutput));
 		}
-		
+
 	}
 }

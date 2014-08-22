@@ -102,7 +102,6 @@ public class TanHNormalizer extends DataNormalizer {
 	}
 
 	
-	//? remove
 	public double[] denormalize(double[] data) {
 		
 		Atanh atanh = new Atanh();

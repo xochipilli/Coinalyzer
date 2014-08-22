@@ -3,6 +3,7 @@ package nu.dyn.caapi.market;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import nu.dyn.caapi.bot.AppConfig;
 import nu.dyn.caapi.market.exchanges.Poloniex;
@@ -13,49 +14,59 @@ import org.springframework.stereotype.Service;
 public class MarketClient {
 	public Market market;
 	public AppConfig appConfig;
-	
+
 	public MarketClient() {
-		
+
 		appConfig = new AppConfig();
-		
-		CoinPairInfo coinPair = new CoinPairInfo(appConfig.coinPrimary, appConfig.coinCounter);
-				
+
+		CoinPairInfo coinPair = new CoinPairInfo(appConfig.coinPrimary,
+				appConfig.coinCounter);
+
 		try {
 			DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-			Window timeframe = new Window(dateFormat.parse("1/1/2013"), dateFormat.parse("1/1/2015"), Constants.period_15m);
-	
+			Window timeframe = new Window(dateFormat.parse("1/1/2013"),
+					dateFormat.parse("1/1/2015"), Constants.period_15m);
+
 			market = new Poloniex(coinPair, timeframe);
 			market.getAllSeries(false);
 
 		} catch (ParseException e) {
-			//TODO:
-			System.out.println("Error: "+ e);
+			// TODO:
+			System.out.println("Error: " + e);
 		}
 	}
-	
+
 	public byte[] getChart() {
-		
+
 		return market.chart.getChart(false);
-		
+
 	}
-	
+
 	public byte[] getRefreshedChart() {
 		
-		return market.chart.getChart(true);
+		market.getAllSeries(true);
 		
+		return market.chart.getChart(true);
+
+	}
+
+	public void setChartRangeAll() {
+		market.chart.getChart(
+			market.chart.series.getTick(0).getBeginTime().toDate(),
+			market.chart.series.getTick(market.chart.series.getSize()-1).getBeginTime().toDate()
+		);
 	}
 
 	public void setChartRange(Window t) {
-		
+
 		market.chart.getChart(t.getStart(), t.getEnd());
-		
+
 	}
-	
+
 	public void setChartPeriod(int period) {
-		
+
 		market.setPeriod(period);
-		
+
 	}
-	
-	
+
 }
