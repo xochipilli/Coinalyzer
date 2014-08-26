@@ -3,9 +3,11 @@ package nu.dyn.caapi.controllers;
 import java.io.OutputStream;
 import java.util.Locale;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 
 import nu.dyn.caapi.bot.AppConfig;
+import nu.dyn.caapi.exceptions.HostCouldNotBeResolvedException;
 import nu.dyn.caapi.market.Constants;
 import nu.dyn.caapi.market.MarketClient;
 import nu.dyn.caapi.model.Analytics;
@@ -17,9 +19,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.ModelAndView;
 
 /**
  * Handles requests for the application home page.
@@ -30,7 +34,9 @@ public class HomeController {
 	private MarketClient client;
 	@Autowired
 	private Analytics analytics;
-
+	@Autowired
+	private AppConfig appConfig;
+	
 	private static final Logger logger = LoggerFactory
 			.getLogger(HomeController.class);
 
@@ -43,7 +49,7 @@ public class HomeController {
 	 * Simply selects the home view to render by returning its name.
 	 */
 	@RequestMapping(value = "/", method = RequestMethod.GET)
-	public String home(Locale locale, Model model, HttpServletRequest request) {
+	public String home(Locale locale, Model model, HttpServletRequest request) throws Exception {
 
 		logger.info("Welcome home! The client locale is {}.", locale);
 
@@ -91,7 +97,6 @@ public class HomeController {
 			analytics.train();
 		}
 			
-			
 		return "home";
 
 	}
@@ -99,7 +104,7 @@ public class HomeController {
 	@RequestMapping(value = "/config", method = RequestMethod.GET)
 	public String config(Locale locale, Model model) {
 
-		model.addAttribute("AppConfig", client.appConfig);
+		model.addAttribute("AppConfig", appConfig);
 		return "configuration";
 
 	}
@@ -109,12 +114,12 @@ public class HomeController {
 		// ModelAndView view = new ModelAndView();
 
 		try {
-			client.appConfig.update(c);
+			appConfig.update(c);
 		} catch (ConfigurationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		model.addAttribute("AppConfig", client.appConfig);
+		model.addAttribute("AppConfig", appConfig);
 		model.addAttribute("message", "New Configuration saved.");
 
 		return "configuration";
@@ -128,10 +133,10 @@ public class HomeController {
 		return "home";
 	}
 
-	// @PostConstruct
-	// public void init() {
-	//
-	// }
+//	@PostConstruct
+//	public void init() throws Exception {
+//		client.init();
+//	}
 
 	@RequestMapping("/chart.png")
 	public void renderChart(OutputStream stream) throws Exception {
@@ -139,4 +144,17 @@ public class HomeController {
 		stream.write(client.getChart());
 
 	}
+	
+	 @ExceptionHandler(HostCouldNotBeResolvedException.class)
+	    public ModelAndView handleEmployeeNotFoundException(HttpServletRequest request, Exception ex){
+	        logger.error("Requested URL="+request.getRequestURL());
+	        logger.error("Exception Raised="+ex);
+	         
+	        ModelAndView modelAndView = new ModelAndView();
+	        modelAndView.addObject("exception", ex);
+	        modelAndView.addObject("url", request.getRequestURL());
+	         
+	        modelAndView.setViewName("error");
+	        return modelAndView;
+	    }   
 }

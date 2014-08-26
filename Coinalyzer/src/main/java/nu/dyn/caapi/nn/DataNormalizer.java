@@ -2,7 +2,7 @@ package nu.dyn.caapi.nn;
 
 import java.util.ArrayList;
 
-import org.neuroph.core.learning.DataSet;
+import org.neuroph.core.data.DataSet;
 
 public abstract class DataNormalizer {
 

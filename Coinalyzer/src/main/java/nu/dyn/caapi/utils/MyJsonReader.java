@@ -15,15 +15,21 @@ import java.nio.charset.Charset;
 
 import javax.net.ssl.HttpsURLConnection;
 
-import nu.dyn.caapi.bot.AppConfig;
+import nu.dyn.caapi.exceptions.HostCouldNotBeResolvedException;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 
-
 public class MyJsonReader {
-
-	private static String readAll(Reader rd) throws IOException {
+	private String proxyHost;
+	private int proxyPort;
+	
+	public MyJsonReader(String proxyHost, int proxyPort) {
+		this.proxyHost = proxyHost;
+		this.proxyPort = proxyPort;
+	}
+	
+	private String readAll(Reader rd) throws IOException {
 		StringBuilder sb = new StringBuilder();
 		int cp;
 		while ((cp = rd.read()) != -1) {
@@ -32,7 +38,7 @@ public class MyJsonReader {
 		return sb.toString();
 	}
 	
-	public static JSONArray readJson(String url, String filename) throws IOException {
+	public JSONArray readJson(String url, String filename) throws Exception {
 		
 		try { 
 			String s = readFile(filename);
@@ -43,33 +49,37 @@ public class MyJsonReader {
 		}
 	}
 	
-	public static JSONArray readJsonFromUrl(String url, String fileName) throws IOException,	JSONException {
+	public JSONArray readJsonFromUrl(String url, String fileName) throws HostCouldNotBeResolvedException  {
 		System.out.println("Reading from URL: "+url);
 		
-		Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(
-				AppConfig.proxyHost, AppConfig.proxyPort));
+		Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, proxyPort));
+		JSONArray json=null;
 		
-		URL server = new URL(url);
-		HttpsURLConnection conn = (HttpsURLConnection) server.openConnection(proxy);
-		InputStream is = conn.getInputStream();
 		try {
+			URL server = new URL(url);
+			HttpsURLConnection conn = (HttpsURLConnection) server.openConnection(proxy);
+			InputStream is = conn.getInputStream();
 			BufferedReader rd = new BufferedReader(new InputStreamReader(is,
 					Charset.forName("UTF-8")));
 			String jsonText = readAll(rd);
-			JSONArray json = new JSONArray(jsonText);
+			json = new JSONArray(jsonText);
 			
 			PrintWriter p = new PrintWriter(fileName);
 			p.write(json.toString());
 			p.close();
-			
-			return json;
-		} finally {
 			is.close();
+			
+		} catch (IOException e) {
+			System.out.println("Error: "+e);
+			throw new HostCouldNotBeResolvedException(proxyHost);
+		} catch (JSONException e){
+			System.out.println("Error: "+e);
 		}
-		
+		return json;
+				
 	}
 	
-	public static String readFile(String filename) throws IOException {
+	public String readFile(String filename) throws IOException {
 		BufferedReader br = new BufferedReader(new FileReader(filename));
 		 
 		StringBuffer sb = new StringBuffer();
@@ -80,8 +90,7 @@ public class MyJsonReader {
 		 
 		br.close();
 		
-		return new String(sb.toString());
-		
+		return new String(sb.toString());		
 		
 	}
 }

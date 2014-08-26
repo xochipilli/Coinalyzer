@@ -1,5 +1,6 @@
 package nu.dyn.caapi.market.exchanges;
 
+import nu.dyn.caapi.bot.AppConfig;
 import nu.dyn.caapi.market.CoinPairInfo;
 import nu.dyn.caapi.market.Market;
 import nu.dyn.caapi.market.Window;
@@ -8,9 +9,9 @@ public class Poloniex extends Market {
 	private CoinPairInfo coinPair;
 	Window t;
 	
-	public Poloniex(CoinPairInfo coinPair, Window t) {
+	public Poloniex(CoinPairInfo coinPair, Window t, AppConfig appConfig) {
 
-		super(coinPair, t);
+		super(coinPair, t, appConfig);
 		
 		this.t = t;
 		this.coinPair = coinPair;

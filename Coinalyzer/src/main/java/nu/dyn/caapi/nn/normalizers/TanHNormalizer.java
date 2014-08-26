@@ -10,8 +10,8 @@ import org.apache.commons.math3.analysis.function.Atanh;
 import org.apache.commons.math3.analysis.function.Tanh;
 import org.apache.commons.math3.stat.descriptive.moment.Mean;
 import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
-import org.neuroph.core.learning.DataSet;
-import org.neuroph.core.learning.DataSetRow;
+import org.neuroph.core.data.DataSet;
+import org.neuroph.core.data.DataSetRow;
 
 // http://www.mirlabs.org/ijcisim/regular_papers_2014/IJCISIM_24.pdf
 

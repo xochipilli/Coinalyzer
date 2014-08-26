@@ -3,31 +3,30 @@ package nu.dyn.caapi.market;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import nu.dyn.caapi.bot.AppConfig;
 import nu.dyn.caapi.market.exchanges.Poloniex;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-@Service
+@Service	
 public class MarketClient {
+	@Autowired 
+	private AppConfig appConfig;
+	
 	public Market market;
-	public AppConfig appConfig;
 
-	public MarketClient() {
+	public void init() throws Exception {
 
-		appConfig = new AppConfig();
-
-		CoinPairInfo coinPair = new CoinPairInfo(appConfig.coinPrimary,
-				appConfig.coinCounter);
+		CoinPairInfo coinPair = new CoinPairInfo(appConfig.coinPrimary, appConfig.coinCounter);
 
 		try {
 			DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 			Window timeframe = new Window(dateFormat.parse("1/1/2013"),
 					dateFormat.parse("1/1/2015"), Constants.period_15m);
 
-			market = new Poloniex(coinPair, timeframe);
+			market = new Poloniex(coinPair, timeframe, appConfig);
 			market.getAllSeries(false);
 
 		} catch (ParseException e) {
@@ -42,7 +41,7 @@ public class MarketClient {
 
 	}
 
-	public byte[] getRefreshedChart() {
+	public byte[] getRefreshedChart() throws Exception {
 		
 		market.getAllSeries(true);
 		
@@ -63,7 +62,7 @@ public class MarketClient {
 
 	}
 
-	public void setChartPeriod(int period) {
+	public void setChartPeriod(int period) throws Exception {
 
 		market.setPeriod(period);
 

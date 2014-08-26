@@ -3,11 +3,13 @@ package nu.dyn.caapi.market;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import nu.dyn.caapi.bot.AppConfig;
 import nu.dyn.caapi.utils.MyJsonReader;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.json.JSONArray;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public abstract class Market {
 
@@ -19,6 +21,8 @@ public abstract class Market {
 	public ArrayList<CoinTick> series_2h;
 	public ArrayList<CoinTick> series_4h;
 
+	MyJsonReader jsonReader;
+	
 	// public ArrayList<Series> series_5m_indicators;
 	// public ArrayList<Series> series_15m_indicators;
 	// public ArrayList<Series> series_30m_indicators;
@@ -31,14 +35,22 @@ public abstract class Market {
 
 	protected abstract String constructFilename(int windowLength);
 
-	public Market(CoinPairInfo coinPair, Window t) {
+	public Market(CoinPairInfo coinPair, Window t, AppConfig appConfig) {
 
 		this.coinPair = coinPair;
 		this.t = t;
-
+		
+		initJsonReader(appConfig.proxyHost, appConfig.proxyPort);
+		
 	}
 
-	public void setPeriod(int period) {
+	private void initJsonReader(String proxyHost, int proxyPort) {
+		
+		jsonReader = new MyJsonReader(proxyHost, proxyPort);
+
+	}
+	
+	public void setPeriod(int period) throws Exception {
 
 		t.setLength(period);
 		chart = new Chart(coinPair.getCurrencyPairId(),
@@ -46,7 +58,7 @@ public abstract class Market {
 
 	}
 
-	public void getAllSeries(boolean refresh) {
+	public void getAllSeries(boolean refresh) throws Exception {
 
 		series_5m = getSeries(Constants.period_5m, refresh);
 		
@@ -99,7 +111,7 @@ public abstract class Market {
 							volume);
 	}
 
-	public ArrayList<CoinTick> getSeries(int windowLength, boolean refresh) {
+	public ArrayList<CoinTick> getSeries(int windowLength, boolean refresh) throws Exception {
 
 		ArrayList<CoinTick> arr = new ArrayList<CoinTick>();
 
@@ -109,11 +121,10 @@ public abstract class Market {
 			String filename = constructFilename(windowLength);
 
 			JSONArray json;
-
 			if (refresh)
-				json = MyJsonReader.readJsonFromUrl(URL, filename);
+				json = jsonReader.readJsonFromUrl(URL, filename);
 			else
-				json = MyJsonReader.readJson(URL, filename);
+				json = jsonReader.readJson(URL, filename);
 
 			for (int i = 0; i < json.length(); i++) {
 				arr.add(new CoinTick(new DateTime((json.getJSONObject(i)

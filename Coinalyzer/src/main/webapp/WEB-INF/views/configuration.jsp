@@ -18,6 +18,8 @@
 		Primary Coin: <input type="text" name="coinPrimary" value="${AppConfig.coinPrimary}"><br />
 		Counter Coin: <input type="text" name="coinCounter" value="${AppConfig.coinCounter}"><br />
 		
+		Proxy host: <input type="text" name="proxyhost" value="${AppConfig.prohyhost}"> Port: <input type="text" name="proxyport" value="${AppConfig.proxyport}"><br />
+		
 		<br /><br />
 		
 		<input type="submit" value="Submit">

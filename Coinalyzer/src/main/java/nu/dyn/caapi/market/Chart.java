@@ -3,11 +3,11 @@ package nu.dyn.caapi.market;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Paint;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 
-import org.apache.activemq.util.ByteArrayOutputStream;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.DateAxis;
