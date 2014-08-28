@@ -1,19 +1,6 @@
 package nu.dyn.caapi.nn;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Random;
-
-import nu.dyn.caapi.market.CoinTick;
-import nu.dyn.caapi.nn.normalizers.TanHNormalizer;
-
-import org.joda.time.DateTime;
-import org.junit.Assert;
 import org.junit.Test;
-
-import eu.verdelhan.ta4j.Tick;
 
 public class InputNormalizerTest {
 

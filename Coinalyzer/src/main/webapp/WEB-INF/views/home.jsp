@@ -15,15 +15,15 @@
 
 <br/>
 
-<a href="/caapi?refresh">Refresh</a>
+<a href="/coinalyzer?refresh">Refresh</a>
 
 <br/>
   	
-Period: <a href="/caapi/?period=5m">5m</a> <a href="/caapi/?period=15m">15m</a> <a href="/caapi/?period=30m">30m</a> <a href="/caapi/?period=2h">2h</a> <a href="/caapi/?period=4h">4h</a>
+Period: <a href="/coinalyzer/?period=5m">5m</a> <a href="/coinalyzer/?period=15m">15m</a> <a href="/coinalyzer/?period=30m">30m</a> <a href="/coinalyzer/?period=2h">2h</a> <a href="/coinalyzer/?period=4h">4h</a>
 
 <br />
 
-Timeframe: <a href="/caapi/?timeframe=6h">6h</a> <a href="/caapi/?timeframe=24h">24h</a> <a href="/caapi/?timeframe=2d">2d</a> <a href="/caapi/?timeframe=4d">4d</a> <a href="/caapi/?timeframe=1w">1w</a> <a href="/caapi/?timeframe=2w">2w</a> <a href="/caapi/?timeframe=1m">1m</a> <a href="/caapi/?timeframe=all">all</a>
+Timeframe: <a href="/coinalyzer/?timeframe=6h">6h</a> <a href="/coinalyzer/?timeframe=24h">24h</a> <a href="/coinalyzer/?timeframe=2d">2d</a> <a href="/coinalyzer/?timeframe=4d">4d</a> <a href="/coinalyzer/?timeframe=1w">1w</a> <a href="/coinalyzer/?timeframe=2w">2w</a> <a href="/coinalyzer/?timeframe=1m">1m</a> <a href="/coinalyzer/?timeframe=all">all</a>
 
 <br />
 
@@ -31,7 +31,7 @@ Timeframe: <a href="/caapi/?timeframe=6h">6h</a> <a href="/caapi/?timeframe=24h"
 
 <br /> 
 
-<a href="/caapi/?train">Train NN</a>
+<a href="/coinalyzer/?train">Train NN</a>
 
 <br />
 

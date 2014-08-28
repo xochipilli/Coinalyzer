@@ -9,7 +9,7 @@
 	<p align="left">
 
 		<font color="red">Coin</font><font color="green">alyzer</font> <a
-			href="/caapi">Main</a>
+			href="/coinalyzer">Main</a>
 	</p>
 
 	<p>${message}</p>
@@ -18,7 +18,7 @@
 		Primary Coin: <input type="text" name="coinPrimary" value="${AppConfig.coinPrimary}"><br />
 		Counter Coin: <input type="text" name="coinCounter" value="${AppConfig.coinCounter}"><br />
 		
-		Proxy host: <input type="text" name="proxyhost" value="${AppConfig.prohyhost}"> Port: <input type="text" name="proxyport" value="${AppConfig.proxyport}"><br />
+		Proxy host: <input type="text" name="proxyhost" value="${AppConfig.proxyhost}"> Port: <input type="text" name="proxyport" value="${AppConfig.proxyport}"><br />
 		
 		<br /><br />
 		
