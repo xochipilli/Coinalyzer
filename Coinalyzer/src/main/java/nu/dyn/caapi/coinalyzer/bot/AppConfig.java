@@ -18,8 +18,10 @@ public class AppConfig {
 		
 	public static final String configurationFile = "coinalyzer_config.xml";
 	
-	public String proxyHost = "sapproxy2";
+	public String proxyHost = "sapproxy";
 	public Integer proxyPort = 3128;
+	public boolean useProxy = true;
+	
 	//public static final String projectDirectory = "coinalyzer/"; //TODO: ?
 
 	public String coinPrimary = "BTC";
@@ -34,6 +36,9 @@ public class AppConfig {
 		
 			coinPrimary = config.getString("coinPair.primary", coinPrimary);
 			coinCounter = config.getString("coinPair.counter", coinCounter);
+			
+			useProxy = "yes".equals(config.getString("proxy.useProxy", useProxy ? "true" : "false")) ? true : false;
+			
 			proxyHost = config.getString("proxy.host", proxyHost);
 			try {
 				String port = config.getString("proxy.port", proxyPort.toString());
@@ -49,8 +54,8 @@ public class AppConfig {
 				writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n<config>\n</config>\n");
 				writer.close();
 				saveProperties();
-			} catch (IOException e1) {
-				throw new DescribedIOException("Could not write default configuration file " + configurationFile, e);
+			} catch (IOException ioe) {
+				throw new DescribedIOException("Could not write default configuration file " + configurationFile, ioe);
 			}
 		}
 	}
@@ -71,6 +76,7 @@ public class AppConfig {
 			config.setProperty("coinPair.counter", coinCounter);
 			config.setProperty("proxy.host", proxyHost);
 			config.setProperty("proxy.port", proxyPort.toString());
+			config.setProperty("proxy.useProxy", useProxy);
 			config.save();
 		} catch (ConfigurationException e) {
 			throw new DescribedIOException("Could not write configuration file " + configurationFile, e);
@@ -99,5 +105,13 @@ public class AppConfig {
 
 	public int getProxyport() {
 		return proxyPort;
+	}
+
+	public boolean isUseProxy() {
+		return useProxy;
+	}
+
+	public void setUseProxy(boolean useProxy) {
+		this.useProxy = useProxy;
 	}
 }

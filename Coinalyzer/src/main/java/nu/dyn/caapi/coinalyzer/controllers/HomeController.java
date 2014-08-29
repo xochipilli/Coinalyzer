@@ -1,6 +1,9 @@
 package nu.dyn.caapi.coinalyzer.controllers;
 
 import java.io.OutputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Locale;
 
 import javax.annotation.PostConstruct;
@@ -149,7 +152,11 @@ public class HomeController {
 		logger.error("Requested URL="+request.getRequestURL());
 	    logger.error("Exception Raised="+ex);
 	         
+		DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss.SSS");
+		Calendar cal = Calendar.getInstance();
+		
 	    ModelAndView modelAndView = new ModelAndView("error");
+	    modelAndView.addObject("timestamp", dateFormat.format(cal.getTime()));
 	    modelAndView.addObject("exception", ex);
 	    modelAndView.addObject("url", request.getRequestURL());
 	         

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+<h:head>
+	<title>Coinalyzer</title>
+</h:head>
+
+<h:body>
+	<h:outputStylesheet library="css" name="style.css" />
+
+	<div class="menuBox">
+		<ui:insert name="header">
+			<ui:include src="templates/header.xhtml" />
+		</ui:insert>
+	</div>
+
+	<h2>Application error</h2>
+
+	<h3>Debug Information:</h3>
+	Timestamp = ${timestamp}
+	<br /> Requested URL = ${url}
+	<br /> Exception = ${exception.message}
+	<br />
+	<br />
+
+	<strong>Exception Stack Trace</strong>
+	<br />
+	<ui:repeat value="${exception.stackTrace}" var="ste">
+    ${ste}
+	</ui:repeat>
+	
+	<br />
+	<div class="footerBox">
+		<ui:insert name="footer">
+			<ui:include src="templates/footer.xhtml" />
+		</ui:insert>
+	</div>
+</h:body>
+
+</html>

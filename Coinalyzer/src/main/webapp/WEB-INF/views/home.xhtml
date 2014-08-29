@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+<h:body>
+	<ui:composition template="templates/common.xhtml">
+		<ui:define name="content">
+		
+			<a href="/coinalyzer/?train">Train NN</a>
+			<br />
+			<a href="/coinalyzer?refresh">Refresh</a>
+
+			<br />
+  	
+Period: <a href="/coinalyzer/?period=5m">5m</a>
+			<a href="/coinalyzer/?period=15m">15m</a>
+			<a href="/coinalyzer/?period=30m">30m</a>
+			<a href="/coinalyzer/?period=2h">2h</a>
+			<a href="/coinalyzer/?period=4h">4h</a>
+
+			<br />
+
+Timeframe: <a href="/coinalyzer/?timeframe=6h">6h</a>
+			<a href="/coinalyzer/?timeframe=24h">24h</a>
+			<a href="/coinalyzer/?timeframe=2d">2d</a>
+			<a href="/coinalyzer/?timeframe=4d">4d</a>
+			<a href="/coinalyzer/?timeframe=1w">1w</a>
+			<a href="/coinalyzer/?timeframe=2w">2w</a>
+			<a href="/coinalyzer/?timeframe=1m">1m</a>
+			<a href="/coinalyzer/?timeframe=all">all</a>
+
+			<br />
+
+			<h:graphicImage value="chart.png" />
+		
+
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>
