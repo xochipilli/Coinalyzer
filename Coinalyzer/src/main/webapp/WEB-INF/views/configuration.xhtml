@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+<h:body>
+
+	<ui:composition template="templates/common.xhtml">
+		<ui:define name="content">
+
+			<p>${message}</p>
+			<br />
+			<form action="config" method="post">
+				Primary Coin: 
+				<h:inputText name="coinPrimary" value="${AppConfig.coinPrimary}" />
+				<br /> 
+				Counter Coin: <h:inputText name="coinCounter" value="${AppConfig.coinCounter}" />
+				<br />
+
+				Proxy host: 
+				<h:inputText name="proxyhost" value="${AppConfig.proxyhost}" /> 
+				Port: 
+				<h:inputText name="proxyport" value="${AppConfig.proxyport}" />
+				<br /> 
+				<br />
+				<br /> 
+				<h:commandButton value="Submit" />
+			</form>
+
+
+		</ui:define>
+	</ui:composition>
+</h:body>
+</html>
