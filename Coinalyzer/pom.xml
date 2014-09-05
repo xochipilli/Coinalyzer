@@ -19,6 +19,11 @@
 
 	<repositories>
 		<repository>
+			<id>prime-repo</id>
+			<name>Prime Repo</name>
+			<url>http://repository.primefaces.org</url>
+		</repository>
+		<repository>
 			<id>neuroph.sourceforge.net</id>
 			<url>http://neuroph.sourceforge.net/maven2/</url>
 		</repository>
@@ -81,7 +86,14 @@
 			<artifactId>postgresql</artifactId>
 			<version>9.1-901-1.jdbc4</version>
 		</dependency>
-
+  	
+  		<!-- PrimeFaces -->
+        <dependency>
+            <groupId>org.primefaces</groupId>
+            <artifactId>primefaces</artifactId>
+            <version>5.0</version>
+        </dependency>
+        
 		<!-- Spring -->
 		<dependency>
 			<groupId>org.springframework</groupId>

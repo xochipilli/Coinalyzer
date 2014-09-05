@@ -3,17 +3,22 @@ package nu.dyn.caapi.coinalyzer.bot;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
+
 import nu.dyn.caapi.coinalyzer.exceptions.DescribedIOException;
 import nu.dyn.caapi.coinalyzer.exceptions.DescribedNumberFormatException;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 //http://www.programcreek.com/java-api-examples/index.php?api=org.apache.commons.configuration.XMLConfiguration
 
 
-@Service
+@Component
+@ManagedBean
+@SessionScoped
 public class AppConfig {
 		
 	public static final String configurationFile = "coinalyzer_config.xml";
@@ -64,7 +69,10 @@ public class AppConfig {
 	
 		coinPrimary = c.coinPrimary;
 		coinCounter = c.coinCounter;
-
+		useProxy = c.useProxy;
+		proxyHost = c.proxyHost;
+		proxyPort = c.proxyPort;
+		
 		saveProperties();
 
 	}
@@ -103,8 +111,16 @@ public class AppConfig {
 		return proxyHost;
 	}
 
+	public void setProxyHost(String proxyHost) {
+		this.proxyHost = proxyHost;
+	}
+
 	public int getProxyport() {
 		return proxyPort;
+	}
+
+	public void setProxyPort(int proxyPort) {
+		this.proxyPort = proxyPort;
 	}
 
 	public boolean isUseProxy() {
