@@ -4,9 +4,12 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
+import javax.annotation.PostConstruct;
+
 import nu.dyn.caapi.coinalyzer.bot.AppConfig;
 import nu.dyn.caapi.coinalyzer.exceptions.PNGChartCreationException;
 import nu.dyn.caapi.coinalyzer.market.exchanges.Poloniex;
+import nu.dyn.caapi.coinalyzer.utils.MyJsonReader;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,25 +20,29 @@ public class MarketClient {
 	private AppConfig appConfig;
 	
 	public Market market;
+	public boolean initialized = false;
 
 	public void init() throws Exception {
 
 		CoinPairInfo coinPair = new CoinPairInfo(appConfig.coinPrimary, appConfig.coinCounter);
 
 		try {
+			
 			DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 			Window timeframe = new Window(dateFormat.parse("1/1/2013"),
 					dateFormat.parse("1/1/2015"), Constants.period_15m);
 
-			market = new Poloniex(coinPair, timeframe, appConfig);
+			market = new Poloniex(coinPair, timeframe, new MyJsonReader(appConfig));
 			market.getAllSeries(false);
-
+			
+			initialized = true;
+			
 		} catch (ParseException e) {
 			// TODO:
 			System.out.println("Error: " + e);
 		}
 	}
-
+	
 	public byte[] getChart() throws PNGChartCreationException {
 
 		return market.chart.getChart(false);

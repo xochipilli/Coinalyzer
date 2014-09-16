@@ -6,7 +6,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
-import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 
 import nu.dyn.caapi.coinalyzer.bot.AppConfig;
@@ -41,8 +40,7 @@ public class HomeController {
 	@Autowired
 	private AppConfig appConfig;
 	
-	private static final Logger logger = LoggerFactory
-			.getLogger(HomeController.class);
+	private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
 
 	// @ModelAttribute("AppConfig")
 	// public AppConfig getAppConfig() {
@@ -57,6 +55,17 @@ public class HomeController {
 
 		logger.info("Welcome home! The client locale is {}.", locale);
 
+		if (! client.initialized) {
+			try {
+				client.init();
+			} catch (Exception e) {
+				// TODO:
+				System.out.println(e);
+				System.out.println(e.getStackTrace());
+				return "error";
+			}
+		}
+		
 		String p_timeframe = request.getParameter("timeframe");
 		if (p_timeframe != null) {
 			if (p_timeframe.equals("all")) {
@@ -130,11 +139,6 @@ public class HomeController {
 		client.getChart();
 
 		return "home";
-	}
-
-	@PostConstruct
-	public void init() throws Exception {
-		client.init();
 	}
 
 	@RequestMapping("/chart.png")

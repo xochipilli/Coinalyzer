@@ -1,21 +1,21 @@
 package nu.dyn.caapi.coinalyzer.market.exchanges;
 
-import nu.dyn.caapi.coinalyzer.bot.AppConfig;
 import nu.dyn.caapi.coinalyzer.market.CoinPairInfo;
 import nu.dyn.caapi.coinalyzer.market.Market;
 import nu.dyn.caapi.coinalyzer.market.Window;
+import nu.dyn.caapi.coinalyzer.utils.MyJsonReader;
 
 public class Poloniex extends Market {
 	private CoinPairInfo coinPair;
 	Window t;
 	
-	public Poloniex(CoinPairInfo coinPair, Window t, AppConfig appConfig) {
+	public Poloniex(CoinPairInfo coinPair, Window t, MyJsonReader jsonReader) {
 
-		super(coinPair, t, appConfig);
+		super(coinPair, t, jsonReader);
 		
 		this.t = t;
 		this.coinPair = coinPair;
-
+		
 	}
 		
 	protected String constructURL(int windowLength) {
