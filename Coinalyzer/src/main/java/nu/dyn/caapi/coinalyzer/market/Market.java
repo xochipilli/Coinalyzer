@@ -52,8 +52,7 @@ public abstract class Market {
 	public void setPeriod(int period) throws Exception {
 
 		t.setLength(period);
-		chart = new Chart(coinPair.getCurrencyPairId(),
-				getSeries(period, false), t);
+		chart = new Chart(coinPair.getCurrencyPairId(), getSeries(period, false), t);
 
 	}
 

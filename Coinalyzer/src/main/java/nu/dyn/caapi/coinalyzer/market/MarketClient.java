@@ -3,6 +3,7 @@ package nu.dyn.caapi.coinalyzer.market;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 
 import nu.dyn.caapi.coinalyzer.bot.AppConfig;
 import nu.dyn.caapi.coinalyzer.exceptions.PNGChartCreationException;
@@ -29,6 +30,7 @@ public class MarketClient {
 
 			market = new Poloniex(coinPair, timeframe, appConfig);
 			market.getAllSeries(false);
+			setIndicators(appConfig.indicators);
 
 		} catch (ParseException e) {
 			// TODO:
@@ -68,5 +70,9 @@ public class MarketClient {
 		market.setPeriod(period);
 
 	}
+	
+	public void setIndicators(HashMap<String, MyIndicator<?>> indicators) {
 
+		market.chart.setIndicators(indicators);
+	}
 }

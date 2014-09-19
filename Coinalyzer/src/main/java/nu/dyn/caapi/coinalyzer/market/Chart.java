@@ -1,5 +1,5 @@
-
 package nu.dyn.caapi.coinalyzer.market;
+
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Paint;
@@ -7,6 +7,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 
 import nu.dyn.caapi.coinalyzer.exceptions.PNGChartCreationException;
 
@@ -27,16 +28,17 @@ import org.jfree.data.xy.XYDataset;
 import eu.verdelhan.ta4j.Indicator;
 import eu.verdelhan.ta4j.Tick;
 import eu.verdelhan.ta4j.TimeSeries;
-import eu.verdelhan.ta4j.indicators.simple.ClosePriceIndicator;
-import eu.verdelhan.ta4j.indicators.trackers.EMAIndicator;
-import eu.verdelhan.ta4j.indicators.trackers.SMAIndicator;
 import eu.verdelhan.ta4j.series.DefaultTimeSeries;
 
 public class Chart {
 	public TimeSeries series;
-	
+
+	private HashMap<String, MyIndicator<?>> indicators; 
+
 	public DefaultOHLCDataset ohlcDataSet;
+
 	String coinPairName;
+	
 	JFreeChart chart;
 	public byte[] PNGChart;
 	private XYPlot mainPlot;
@@ -44,9 +46,6 @@ public class Chart {
     private NumberAxis rangeAxis = new NumberAxis("Price");
     private CandlestickRenderer renderer;
 	private Window window;
-	
-	EMAIndicator i_sma50;
-	EMAIndicator i_sma20;
 	
     /**
 	* Builds a JFreeChart time series from a Ta4j time series and an indicator.
@@ -89,24 +88,39 @@ public class Chart {
 		prepareChart();
 	}
 
-	void addIndicators() {
+//	void addIndicator(String name) {
+//		
+//		ClosePriceIndicator closePrice = new ClosePriceIndicator(series);
+//		
+//		MyIndicator<Double> i = new MyIndicator<Double>(name);
+//
+//		switch(name) {
+//			case "EMA":
+//				i.setI(new EMAIndicator(closePrice, 20));
+//				break;
+//			case "SMA":
+//				i.setI(new SMAIndicator(closePrice, 20));
+//				break;
+//		}
+//		
+//		indicators.put(name, i);
+//	
+//	}
+	
+	public void setIndicators(HashMap<String, MyIndicator<?>> indicators) {
 		
-		ClosePriceIndicator closePrice = new ClosePriceIndicator(series);
-		SMAIndicator i_sma50 = new SMAIndicator(closePrice, 50);
-		EMAIndicator i_ema50 = new EMAIndicator(closePrice, 50);
-		EMAIndicator i_ema20 = new EMAIndicator(closePrice, 20);
-
-		addIndicator(Chart.buildChartTimeSeries(series, i_sma50, "50 SMA"));
-		addIndicator(Chart.buildChartTimeSeries(series, i_ema50, "50 EMA"));
-		addIndicator(Chart.buildChartTimeSeries(series, i_ema20, "20 EMA"));
-		
+		this.indicators = indicators;
 	}
-
-	void addIndicator(XYDataset set) {
+	
+	/**
+	 * Add indicator with name to current chart 
+	 * @param ind TA4j indicator 
+	 * @param name Description
+	 */
+	private void plotIndicator(MyIndicator indicator) {
 		
 		int n = mainPlot.getDatasetCount();
-		
-		mainPlot.setDataset(n, set);
+		mainPlot.setDataset(n, Chart.buildChartTimeSeries(series, indicator.getI(), indicator.getName()) );
 		
 		XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
 		renderer.setSeriesStroke(n, new BasicStroke(1.0f));
@@ -117,7 +131,8 @@ public class Chart {
 	
 	
 	/**
-	* Get previously generated chart 
+	* Generate chart 
+	* @param Plot new chart if true
 	* @return byte[] PNG image of chart
 	 * @throws PNGChartCreationException 
 	*/
@@ -133,6 +148,7 @@ public class Chart {
 	* Generate and return chart with specified date range from - to 
 	* @param from Start date 
 	* @param to End date
+	* @param Indicators
 	* @return byte[] PNG image of chart
 	 * @throws PNGChartCreationException 
 	*/
@@ -194,7 +210,8 @@ public class Chart {
 		
 		chart = new JFreeChart(coinPairName, null, mainPlot, true);
 		
-		addIndicators();
+		for (MyIndicator<?> i: indicators.values())
+			plotIndicator(i);
 		
 		writePNG();
 		
