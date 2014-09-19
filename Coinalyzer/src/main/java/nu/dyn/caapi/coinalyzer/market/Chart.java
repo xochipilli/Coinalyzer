@@ -7,8 +7,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 
+import nu.dyn.caapi.coinalyzer.bot.AppConfig;
 import nu.dyn.caapi.coinalyzer.exceptions.PNGChartCreationException;
 
 import org.jfree.chart.ChartUtilities;
@@ -24,20 +24,27 @@ import org.jfree.data.xy.DefaultOHLCDataset;
 import org.jfree.data.xy.OHLCDataItem;
 import org.jfree.data.xy.OHLCDataset;
 import org.jfree.data.xy.XYDataset;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import eu.verdelhan.ta4j.Indicator;
 import eu.verdelhan.ta4j.Tick;
 import eu.verdelhan.ta4j.TimeSeries;
+import eu.verdelhan.ta4j.indicators.simple.ClosePriceIndicator;
 import eu.verdelhan.ta4j.series.DefaultTimeSeries;
 
+@Service
 public class Chart {
 	public TimeSeries series;
 
-	private HashMap<String, MyIndicator<?>> indicators; 
+	//private HashMap<String, MyIndicator<?>> indicators; 
 
 	public DefaultOHLCDataset ohlcDataSet;
 
 	String coinPairName;
+	
+	@Autowired
+	AppConfig appConfig;
 	
 	JFreeChart chart;
 	public byte[] PNGChart;
@@ -45,9 +52,38 @@ public class Chart {
     private DateAxis domainAxis = new DateAxis("Date");
     private NumberAxis rangeAxis = new NumberAxis("Price");
     private CandlestickRenderer renderer;
-	private Window window;
+	public TimeWindow window;
 	
-    /**
+	
+	/** Prepare the chart with input ticks on a coin for a time window
+	 * @param coinPairName
+	 * @param ticks
+	 * @param t
+	 */
+	public void init(String coinPairName, ArrayList<CoinTick> ticks, TimeWindow t) {
+		
+		this.coinPairName = coinPairName;
+		this.window = t;
+		this.series = new DefaultTimeSeries(ticks);
+		
+		// convert ticks to ohlcd dats set
+		OHLCDataItem[] data = new OHLCDataItem[ticks.size()];
+		for (int i=0; i<ticks.size(); i++) {
+			 data[i] = new OHLCDataItem(
+					ticks.get(i).getBeginTime().toDate(), 
+					ticks.get(i).getOpenPrice(), 
+					ticks.get(i).getMaxPrice(), 
+					ticks.get(i).getMinPrice(), 
+					ticks.get(i).getClosePrice(), 
+					ticks.get(i).getVolume());
+			 
+		}
+		ohlcDataSet = new DefaultOHLCDataset(coinPairName, data);
+	
+		prepareChart();
+	}
+
+	/**
 	* Builds a JFreeChart time series from a Ta4j time series and an indicator.
 	* @param tickSeries the ta4j time series
 	* @param indicator the indicator
@@ -66,50 +102,20 @@ public class Chart {
         
     }
     
-	public Chart(String coinPairName, ArrayList<CoinTick> ticks, Window t) {
+	/** Calculate and plot indicators for current chart
+	 * 
+	 */
+	private void initIndicators() {
 		
-		this.coinPairName = coinPairName;
-		this.window = t;
-		this.series = new DefaultTimeSeries(ticks);
+		ClosePriceIndicator closePrice = new ClosePriceIndicator(series);
 		
-		OHLCDataItem[] data = new OHLCDataItem[ticks.size()];
-		for (int i=0; i<ticks.size(); i++) {
-			 data[i] = new OHLCDataItem(
-					ticks.get(i).getBeginTime().toDate(), 
-					ticks.get(i).getOpenPrice(), 
-					ticks.get(i).getMaxPrice(), 
-					ticks.get(i).getMinPrice(), 
-					ticks.get(i).getClosePrice(), 
-					ticks.get(i).getVolume());
-			 
+		for (int k=0; k < appConfig.indicators.size(); k++) {
+		
+			appConfig.indicators.get(k).init(closePrice);
+			
+			plotIndicator(appConfig.indicators.get(k));
+			
 		}
-		ohlcDataSet = new DefaultOHLCDataset(coinPairName, data);
-	
-		prepareChart();
-	}
-
-//	void addIndicator(String name) {
-//		
-//		ClosePriceIndicator closePrice = new ClosePriceIndicator(series);
-//		
-//		MyIndicator<Double> i = new MyIndicator<Double>(name);
-//
-//		switch(name) {
-//			case "EMA":
-//				i.setI(new EMAIndicator(closePrice, 20));
-//				break;
-//			case "SMA":
-//				i.setI(new SMAIndicator(closePrice, 20));
-//				break;
-//		}
-//		
-//		indicators.put(name, i);
-//	
-//	}
-	
-	public void setIndicators(HashMap<String, MyIndicator<?>> indicators) {
-		
-		this.indicators = indicators;
 	}
 	
 	/**
@@ -210,8 +216,7 @@ public class Chart {
 		
 		chart = new JFreeChart(coinPairName, null, mainPlot, true);
 		
-		for (MyIndicator<?> i: indicators.values())
-			plotIndicator(i);
+		initIndicators();
 		
 		writePNG();
 		

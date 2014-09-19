@@ -2,6 +2,7 @@ package nu.dyn.caapi.coinalyzer.bot;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -19,16 +20,13 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.springframework.stereotype.Component;
 
-import eu.verdelhan.ta4j.indicators.trackers.EMAIndicator;
-import eu.verdelhan.ta4j.indicators.trackers.SMAIndicator;
-
 //http://www.programcreek.com/java-api-examples/index.php?api=org.apache.commons.configuration.XMLConfiguration
 
 //TODO len raz za session 
 
-@Component
 @ManagedBean
 @SessionScoped
+@Component
 public class AppConfig {
 		
 	public static final String configurationFile = "coinalyzer_config.xml";
@@ -42,8 +40,7 @@ public class AppConfig {
 	public String coinPrimary = "BTC";
 	public String coinCounter = "XMR";
 	
-	// access indicator by name, every indicator has named attributes
-	public HashMap<String, MyIndicator<?>> indicators = new HashMap<String, MyIndicator<?>>();
+	public List<MyIndicator<?>> indicators = new ArrayList<MyIndicator<?>>(); // = new HashMap<String, MyIndicator<?>>();
 	
 	public AppConfig() throws DescribedNumberFormatException, DescribedIOException {
 		
@@ -54,7 +51,7 @@ public class AppConfig {
 		
 			coinPrimary = config.getString("coinPair.primary", coinPrimary);
 			coinCounter = config.getString("coinPair.counter", coinCounter);
-			useProxy = "yes".equals(config.getString("proxy.useProxy", useProxy ? "true" : "false")) ? true : false;
+			useProxy = "true".equals(config	.getString("proxy.useProxy", useProxy ? "true" : "false")) ? true : false;
 			
 			proxyHost = config.getString("proxy.host", proxyHost);
 		
@@ -62,23 +59,16 @@ public class AppConfig {
 			List<HierarchicalConfiguration> fields = config.configurationsAt("indicators(0).indicator");
 			// iterate over all indicators
 			for(HierarchicalConfiguration sub : fields) {
-				MyIndicator<?> indicator = null;
-				
+				// create new empty indicator with name
 				String i_name = sub.getString("[@name]");
-				switch (i_name) {
-					case "SMA": indicator = new MyIndicator<SMAIndicator>(i_name);
-						break;
-					case "EMA": indicator = new MyIndicator<EMAIndicator>(i_name);
-						break;
-					default: continue;	// no recognizable indicator
-				}
-	
-				// save parameters to hashmap	
-				HashMap<String, Double> params = new HashMap<String, Double>();
+				MyIndicator<?> indicator = new MyIndicator(i_name);
+				
+				// save parameters for indicator to hashmap
+				HashMap<String, Integer> params = new HashMap<String, Integer>();
 				for (Iterator<String> it = sub.getKeys(); it.hasNext(); ) {
 					try {
 						String name = it.next();
-						Double value = sub.getDouble(name);
+						Integer value = sub.getInt(name);
 						params.put(name, value);
 					} catch (ConversionException e) {
 						;	// just ignore the key
@@ -86,7 +76,7 @@ public class AppConfig {
 				}
 				
 				indicator.setParams(params);
-				indicators.put(i_name, indicator);
+				indicators.add(indicator);
 			}
 			//---------------
 			

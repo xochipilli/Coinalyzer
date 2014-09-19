@@ -15,6 +15,7 @@ import java.nio.charset.Charset;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import nu.dyn.caapi.coinalyzer.bot.AppConfig;
 import nu.dyn.caapi.coinalyzer.exceptions.HostCouldNotBeResolvedException;
 import nu.dyn.caapi.coinalyzer.exceptions.JSONParsingException;
 import nu.dyn.caapi.coinalyzer.exceptions.URLOpenConnectionException;
@@ -23,12 +24,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 public class MyJsonReader {
-	private String proxyHost;
-	private int proxyPort;
+
+	AppConfig appConfig;
 	
-	public MyJsonReader(String proxyHost, int proxyPort) {
-		this.proxyHost = proxyHost;
-		this.proxyPort = proxyPort;
+	public MyJsonReader(AppConfig appConfig) {
+			this.appConfig = appConfig;
 	}
 	
 	private String readAll(Reader rd) throws IOException {
@@ -40,7 +40,9 @@ public class MyJsonReader {
 		return sb.toString();
 	}
 	
-	public JSONArray readJson(String url, String filename) throws Exception {
+	/** Read JSON from File, fallback to URL
+	 */
+	public JSONArray readJson(String url, String filename) throws JSONParsingException, HostCouldNotBeResolvedException, URLOpenConnectionException, IOException {
 		
 		try { 
 			String s = readFile(filename);
@@ -51,15 +53,25 @@ public class MyJsonReader {
 		}
 	}
 	
+	
+	/** Read from data URL and save in file with filename
+	 */
 	public JSONArray readJsonFromUrl(String url, String fileName) throws HostCouldNotBeResolvedException, URLOpenConnectionException, JSONParsingException  {
 		System.out.println("Reading from URL: "+url);
 		
-		Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, proxyPort));
 		JSONArray json=null;
 		
 		try {
 			URL server = new URL(url);
-			HttpsURLConnection conn = (HttpsURLConnection) server.openConnection(proxy);
+		
+			HttpsURLConnection conn;
+			if (appConfig.useProxy) {
+				Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(appConfig.proxyHost, appConfig.proxyPort));
+				conn = (HttpsURLConnection) server.openConnection(proxy);
+			} else {
+				conn = (HttpsURLConnection) server.openConnection();
+			}
+			
 			InputStream is = conn.getInputStream();
 			BufferedReader rd = new BufferedReader(new InputStreamReader(is,
 					Charset.forName("UTF-8")));

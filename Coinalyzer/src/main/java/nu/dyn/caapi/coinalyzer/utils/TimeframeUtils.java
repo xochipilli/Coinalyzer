@@ -3,10 +3,10 @@ package nu.dyn.caapi.coinalyzer.utils;
 import java.util.Calendar;
 import java.util.Date;
 
-import nu.dyn.caapi.coinalyzer.market.Window;
+import nu.dyn.caapi.coinalyzer.market.TimeWindow;
 
 public class TimeframeUtils {
-	public static Window getLastNWeeksTimeframe(int weeks) {
+	public static TimeWindow getLastNWeeksTimeframe(int weeks) {
 		
 		Date date = new Date();
 	    Calendar c = Calendar.getInstance();
@@ -17,29 +17,29 @@ public class TimeframeUtils {
 	    c.add(Calendar.DATE, 6);
 	    Date end = c.getTime();
 	    
-	    return new Window(start, end);
+	    return new TimeWindow(start, end);
 	    
 	}
 	
-public static Window getLastNDaysTimeframe(int days) {
+public static TimeWindow getLastNDaysTimeframe(int days) {
 		
 		Date date = new Date();
 	    Calendar c = Calendar.getInstance();
 	    c.setTime(date);
 	    c.add(Calendar.DAY_OF_MONTH, days*-1);
 	    
-	    return new Window(c.getTime(), date);
+	    return new TimeWindow(c.getTime(), date);
 	    
 	}
 
-public static Window getLastNHoursTimeframe(int hours) {
+public static TimeWindow getLastNHoursTimeframe(int hours) {
 	
 	Date date = new Date();
     Calendar c = Calendar.getInstance();
     c.setTime(date);
     c.add(Calendar.HOUR_OF_DAY, hours*-1);
     
-    return new Window(c.getTime(), date);
+    return new TimeWindow(c.getTime(), date);
     
 }
 

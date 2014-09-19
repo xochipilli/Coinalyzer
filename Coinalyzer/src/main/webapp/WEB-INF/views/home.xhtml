@@ -3,7 +3,9 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:ui="http://java.sun.com/jsf/facelets">
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:c="http://java.sun.com/jstl/core">
+	
 <h:body>
 	<ui:composition template="templates/common.xhtml">
 		<ui:define name="content">
@@ -14,23 +16,36 @@
 
 			<br />
   	
-Period: <a href="/coinalyzer/?period=5m">5m</a>
-			<a href="/coinalyzer/?period=15m">15m</a>
-			<a href="/coinalyzer/?period=30m">30m</a>
-			<a href="/coinalyzer/?period=2h">2h</a>
-			<a href="/coinalyzer/?period=4h">4h</a>
-
+Period: 	&nbsp;
+			<h:outputLink value="/coinalyzer/?period=5m" disabled="${period eq Constants.getPeriod_5m()}">5m</h:outputLink>
+			&nbsp;
+			<h:outputLink value="/coinalyzer/?period=15m" disabled="${period eq Constants.getPeriod_15m()}">15m</h:outputLink>
+			&nbsp;
+			<h:outputLink value="/coinalyzer/?period=30m" disabled="${period eq Constants.getPeriod_30m()}">30m</h:outputLink>
+			&nbsp;
+			<h:outputLink value="/coinalyzer/?period=2h" disabled="${period eq Constants.getPeriod_2h()}">2h</h:outputLink>
+			&nbsp;
+			<h:outputLink value="/coinalyzer/?period=4h" disabled="${period eq Constants.getPeriod_4h()}">4h</h:outputLink>
+	
 			<br />
 
-Timeframe: <a href="/coinalyzer/?timeframe=6h">6h</a>
-			<a href="/coinalyzer/?timeframe=24h">24h</a>
-			<a href="/coinalyzer/?timeframe=2d">2d</a>
-			<a href="/coinalyzer/?timeframe=4d">4d</a>
-			<a href="/coinalyzer/?timeframe=1w">1w</a>
-			<a href="/coinalyzer/?timeframe=2w">2w</a>
-			<a href="/coinalyzer/?timeframe=1m">1m</a>
-			<a href="/coinalyzer/?timeframe=all">all</a>
-
+Timeframe: &nbsp;
+			<h:outputLink value="/coinalyzer/?timeframe=6h" disabled="${timeframe eq '6h'}">6h</h:outputLink>
+			&nbsp;
+			<h:outputLink value="/coinalyzer/?timeframe=24h" disabled="${timeframe eq '24h'}">24h</h:outputLink>
+			&nbsp;
+			<h:outputLink value="/coinalyzer/?timeframe=2d" disabled="${timeframe eq '2d'}">2d</h:outputLink>
+			&nbsp;
+			<h:outputLink value="/coinalyzer/?timeframe=4d" disabled="${timeframe eq '4d'}">4d</h:outputLink>
+			&nbsp;
+			<h:outputLink value="/coinalyzer/?timeframe=1w" disabled="${timeframe eq '1w'}">1w</h:outputLink>
+			&nbsp;
+			<h:outputLink value="/coinalyzer/?timeframe=2w" disabled="${timeframe eq '2w'}">2w</h:outputLink>
+			&nbsp;
+			<h:outputLink value="/coinalyzer/?timeframe=1m" disabled="${timeframe eq '1m'}">1m</h:outputLink>
+			&nbsp;
+			<h:outputLink value="/coinalyzer/?timeframe=all" disabled="${timeframe eq 'all'}">all</h:outputLink>
+	
 			<br />
 
 			<h:graphicImage value="chart.png" />

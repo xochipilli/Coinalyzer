@@ -2,8 +2,10 @@ package nu.dyn.caapi.coinalyzer.market;
 
 import java.io.IOException;
 import java.util.ArrayList;
-
-import nu.dyn.caapi.coinalyzer.bot.AppConfig;
+import nu.dyn.caapi.coinalyzer.market.Constants;
+import nu.dyn.caapi.coinalyzer.exceptions.HostCouldNotBeResolvedException;
+import nu.dyn.caapi.coinalyzer.exceptions.JSONParsingException;
+import nu.dyn.caapi.coinalyzer.exceptions.URLOpenConnectionException;
 import nu.dyn.caapi.coinalyzer.utils.MyJsonReader;
 
 import org.joda.time.DateTime;
@@ -12,51 +14,40 @@ import org.json.JSONArray;
 
 public abstract class Market {
 
-	private CoinPairInfo coinPair;
-	public Chart chart;
 	public ArrayList<CoinTick> series_5m;
 	public ArrayList<CoinTick> series_15m;
 	public ArrayList<CoinTick> series_30m;
 	public ArrayList<CoinTick> series_2h;
 	public ArrayList<CoinTick> series_4h;
 
-	MyJsonReader jsonReader;
-	
 	// public ArrayList<Series> series_5m_indicators;
 	// public ArrayList<Series> series_15m_indicators;
 	// public ArrayList<Series> series_30m_indicators;
 	// public ArrayList<Series> series_2h_indicators;
 	// public ArrayList<Series> series_4h_indicators;
 	//
-	Window t;
+	TimeWindow t;
+	MyJsonReader jsonReader;
 
 	protected abstract String constructURL(int windowLength);
 
 	protected abstract String constructFilename(int windowLength);
 
-	public Market(CoinPairInfo coinPair, Window t, AppConfig appConfig) {
+	public Market(TimeWindow t, MyJsonReader jsonReader) {
 
-		this.coinPair = coinPair;
 		this.t = t;
-		
-		initJsonReader(appConfig.proxyHost, appConfig.proxyPort);
+		this.jsonReader = jsonReader;
 		
 	}
 
-	private void initJsonReader(String proxyHost, int proxyPort) {
-		
-		jsonReader = new MyJsonReader(proxyHost, proxyPort);
-
-	}
-	
-	public void setPeriod(int period) throws Exception {
-
-		t.setLength(period);
-		chart = new Chart(coinPair.getCurrencyPairId(), getSeries(period, false), t);
-
-	}
-
-	public void getAllSeries(boolean refresh) throws Exception {
+	/**
+	 * Read reference market data series and calculates rest of the series
+	 * @param refresh Refresh from internet or use local file?
+	 * @throws JSONParsingException
+	 * @throws URLOpenConnectionException
+	 * @throws HostCouldNotBeResolvedException
+	 */
+	public void getAllSeries(boolean refresh) throws JSONParsingException, URLOpenConnectionException, HostCouldNotBeResolvedException {
 
 		series_5m = getSeries(Constants.period_5m, refresh);
 		
@@ -65,19 +56,38 @@ public abstract class Market {
 		series_2h = getSerieWithPeriodicity(24, series_5m);
 		series_4h = getSerieWithPeriodicity(48, series_5m);
 
-		chart = new Chart(coinPair.getCurrencyPairId(), series_5m, t); 
-
 	}
 
+	public ArrayList<CoinTick> getCurrentSeries() {
+		
+		int p = t.getPeriod();
+		
+		if (p==Constants.period_5m)
+			return  series_5m;
+		else if (p==Constants.period_15m)
+			return series_15m;
+		else if (p==Constants.period_30m)
+			return series_30m;
+		else if (p==Constants.period_2h)
+			return  series_2h;
+		else if (p==Constants.period_4h)
+			return  series_4h;
+		else
+			return null;
+	}
+	
 	private  ArrayList<CoinTick> getSerieWithPeriodicity(int periodMultiplicator, ArrayList<CoinTick> base5mSerie) {
 
 		ArrayList<CoinTick> s = new ArrayList<CoinTick>();
 		
-		for (int i = 1; i <= base5mSerie.size(); i++) {
+		int serieSize = base5mSerie.size();
+		for (int i = 1; i <= serieSize; i++) {
 			if (i % periodMultiplicator == 0) {
+				if (serieSize - i - (periodMultiplicator - 1) < 0)
+					break;	// the rest of the ticks cannot fill the whole candlestick so we don't add it
 				ArrayList<CoinTick> ticks = new ArrayList<CoinTick>();
 				for (int j = 0; j < periodMultiplicator; j++) {
-					ticks.add(base5mSerie.get( base5mSerie.size() - i - j));
+					ticks.add(base5mSerie.get( serieSize - i - j));
 				}
 				s.add(mergeCoinTicks(ticks));
 			}
@@ -109,14 +119,14 @@ public abstract class Market {
 							volume);
 	}
 
-	public ArrayList<CoinTick> getSeries(int windowLength, boolean refresh) throws Exception {
+	private ArrayList<CoinTick> getSeries(int windowPeriod, boolean refresh)  throws HostCouldNotBeResolvedException, URLOpenConnectionException, JSONParsingException {
 
 		ArrayList<CoinTick> arr = new ArrayList<CoinTick>();
 
 		try {
 
-			String URL = constructURL(windowLength);
-			String filename = constructFilename(windowLength);
+			String URL = constructURL(windowPeriod);
+			String filename = constructFilename(windowPeriod);
 
 			JSONArray json;
 			if (refresh)
@@ -139,12 +149,6 @@ public abstract class Market {
 		}
 
 		return arr;
-	}
-
-	@Override
-	public String toString() {
-		return chart.toString(); // TODO:
-									// _5m+chart_15m+chart_30m+chart_1h+chart_2h+chart_4h;
 	}
 
 }

@@ -6,7 +6,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
-import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 
 import nu.dyn.caapi.coinalyzer.bot.AppConfig;
@@ -41,13 +40,7 @@ public class HomeController {
 	@Autowired
 	private AppConfig appConfig;
 	
-	private static final Logger logger = LoggerFactory
-			.getLogger(HomeController.class);
-
-	// @ModelAttribute("AppConfig")
-	// public AppConfig getAppConfig() {
-	// return appConfig;
-	// }
+	private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
 
 	/**
 	 * Simply selects the home view to render by returning its name.
@@ -57,39 +50,32 @@ public class HomeController {
 
 		logger.info("Welcome home! The client locale is {}.", locale);
 
-		String p_timeframe = request.getParameter("timeframe");
-		if (p_timeframe != null) {
-			if (p_timeframe.equals("all")) {
-				client.setChartRangeAll();
-			} else if (p_timeframe.equals("1m")) {
-				client.setChartRange(TimeframeUtils.getLastNDaysTimeframe(30));
-			} else if (p_timeframe.equals("2w")) {
-				client.setChartRange(TimeframeUtils.getLastNDaysTimeframe(14));
-			} else if (p_timeframe.equals("1w")) {
-				client.setChartRange(TimeframeUtils.getLastNDaysTimeframe(7));
-			} else if (p_timeframe.equals("4d")) {
-				client.setChartRange(TimeframeUtils.getLastNDaysTimeframe(4));
-			} else if (p_timeframe.equals("2d")) {
-				client.setChartRange(TimeframeUtils.getLastNDaysTimeframe(2));
-			} else if (p_timeframe.equals("24h")) {
-				client.setChartRange(TimeframeUtils.getLastNDaysTimeframe(1));
-			} else if (p_timeframe.equals("6h")) {
-				client.setChartRange(TimeframeUtils.getLastNHoursTimeframe(6));
+		// TODO: move to init()?
+		if (! client.initialized) {
+			try {
+				client.init();
+			} catch (Exception e) {
+				// TODO:
+				System.out.println(e);
+				System.out.println(e.getStackTrace());
+				return "error";
 			}
 		}
-
+		
+		client.setChartRange(request.getParameter("timeframe"));
+		
 		String p_period = request.getParameter("period");
 		if (p_period != null) {
 			if (p_period.equals("5m")) {
-				client.setChartPeriod(Constants.period_5m);
+				client.plotChartForPeriod(Constants.period_5m);
 			} else if (p_period.equals("15m")) {
-				client.setChartPeriod(Constants.period_15m);
+				client.plotChartForPeriod(Constants.period_15m);
 			} else if (p_period.equals("30m")) {
-				client.setChartPeriod(Constants.period_30m);
+				client.plotChartForPeriod(Constants.period_30m);
 			} else if (p_period.equals("2h")) {
-				client.setChartPeriod(Constants.period_2h);
+				client.plotChartForPeriod(Constants.period_2h);
 			} else if (p_period.equals("4h")) {
-				client.setChartPeriod(Constants.period_4h);
+				client.plotChartForPeriod(Constants.period_4h);
 			}
 		}
 
@@ -100,9 +86,13 @@ public class HomeController {
 			analytics.init();
 			analytics.train();
 		}
-			
+		
+		model.addAttribute("period", client.getCurrentPeriod());		
+		model.addAttribute("timeframe", client.getTimeframe());	
+		model.addAttribute("Constants", new Constants());	
+		
 		return "home";
-
+		
 	}
 
 	@RequestMapping(value = "/config", method = RequestMethod.GET)
@@ -130,11 +120,6 @@ public class HomeController {
 		client.getChart();
 
 		return "home";
-	}
-
-	@PostConstruct
-	public void init() throws Exception {
-		client.init();
 	}
 
 	@RequestMapping("/chart.png")
