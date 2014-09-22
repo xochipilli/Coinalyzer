@@ -1,3 +1,8 @@
+.actionButton {
+	height: 18px;	
+	border: 0;
+}
+
 div.menuBox {
 	padding-bottom: 0px;
 }

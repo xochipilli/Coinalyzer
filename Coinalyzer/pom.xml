@@ -15,6 +15,7 @@
 		<org.slf4j-version>1.7.7</org.slf4j-version>
 		<logback-version>1.1.2</logback-version>
 		<org.hibernate-version>3.6.10.Final</org.hibernate-version>
+		<jsf-version>2.2.8</jsf-version>
 	</properties>
 
 	<repositories>
@@ -140,12 +141,12 @@
 		<dependency>
 			<groupId>com.sun.faces</groupId>
 			<artifactId>jsf-api</artifactId>
-			<version>2.1.13</version>
+			<version>${jsf-version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.sun.faces</groupId>
 			<artifactId>jsf-impl</artifactId>
-			<version>2.1.13</version>
+			<version>${jsf-version}</version>
 		</dependency>
 		<!-- 
 		<dependency>

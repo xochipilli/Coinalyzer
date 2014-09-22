@@ -2,7 +2,8 @@ package nu.dyn.caapi.coinalyzer.market;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import nu.dyn.caapi.coinalyzer.market.Constants;
+import java.util.Collections;
+
 import nu.dyn.caapi.coinalyzer.exceptions.HostCouldNotBeResolvedException;
 import nu.dyn.caapi.coinalyzer.exceptions.JSONParsingException;
 import nu.dyn.caapi.coinalyzer.exceptions.URLOpenConnectionException;
@@ -93,21 +94,23 @@ public abstract class Market {
 			}
 		}
 		
+		Collections.reverse(s);	// correct order
+		
 		return s;
 
 	}
 	
-	// return one tick for from all provided ticks
+	// return one tick for all provided ticks
 	private CoinTick mergeCoinTicks(ArrayList<CoinTick> ticks) {
 		
 		double maxPrice = 0D;
-		double minPrice = 0D;
+		double minPrice = ticks.get(0).getMinPrice();
 		double volume = 0D;
 
 		for (int i = 0; i < ticks.size(); i++) {
 			if (ticks.get(i).getMaxPrice() > maxPrice)
 				maxPrice = ticks.get(i).getMaxPrice();
-			if (ticks.get(i).getMinPrice() > minPrice)
+			if (ticks.get(i).getMinPrice() < minPrice)
 				minPrice = ticks.get(i).getMinPrice();
 			volume += ticks.get(i).getVolume();
 		}

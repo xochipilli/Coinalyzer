@@ -1,6 +1,8 @@
 package nu.dyn.caapi.coinalyzer.market;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import eu.verdelhan.ta4j.Indicator;
 import eu.verdelhan.ta4j.indicators.simple.ClosePriceIndicator;
@@ -38,17 +40,34 @@ public class MyIndicator<N> {
 		
 		return false;
 	}
-
+	
+	/** Parameter setter for indicators requiring one parameter only */
+	public void setSingleParam(String key, Integer value) {
+		
+		HashMap<String, Integer> p = new HashMap<String, Integer>();
+		p.put(key, value);
+		
+	}
+	
 	public Integer getParam(String key) {
 		return params.get(key);
 	}
+	
 	public HashMap<String, Integer> getParams() {
+	
 		return params;
 	}
 
+	public List<String> listParams() {
+		
+		return new ArrayList<String>(params.keySet());
+	}
+
 	public void setParams(HashMap<String, Integer> params) {
+		
 		this.params = params;
 	}
+	
 	public Indicator<N> getI() {
 		return i;
 	}

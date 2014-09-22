@@ -3,19 +3,14 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:ui="http://java.sun.com/jsf/facelets"
-	xmlns:c="http://java.sun.com/jstl/core">
-	
+	xmlns:f="http://java.sun.com/jsf/core" 
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+
 <h:body>
 	<ui:composition template="templates/common.xhtml">
 		<ui:define name="content">
 		
-			<a href="/coinalyzer/?train">Train NN</a>
-			<br />
-			<a href="/coinalyzer?refresh">Refresh</a>
-
-			<br />
-  	
 Period: 	&nbsp;
 			<h:outputLink value="/coinalyzer/?period=5m" disabled="${period eq Constants.getPeriod_5m()}">5m</h:outputLink>
 			&nbsp;
@@ -29,7 +24,7 @@ Period: 	&nbsp;
 	
 			<br />
 
-Timeframe: &nbsp;
+Timeframe:  &nbsp;
 			<h:outputLink value="/coinalyzer/?timeframe=6h" disabled="${timeframe eq '6h'}">6h</h:outputLink>
 			&nbsp;
 			<h:outputLink value="/coinalyzer/?timeframe=24h" disabled="${timeframe eq '24h'}">24h</h:outputLink>
@@ -47,11 +42,60 @@ Timeframe: &nbsp;
 			<h:outputLink value="/coinalyzer/?timeframe=all" disabled="${timeframe eq 'all'}">all</h:outputLink>
 	
 			<br />
-
-			<h:graphicImage value="chart.png" />
+					
+			<a href="/coinalyzer?refresh" alt="Refresh chart"><h:graphicImage class="actionButton" value="/resources/images/reload.png" /></a>
+			
+			<br />
+			
+			<h:graphicImage id="chart" value="chart.png" />
+			
+			<form id="config">
+<h3>Indicators:</h3>
+				<ui:repeat var="i" value="${appConfig.indicators}">
+					<span>
+					${i.name}
+						<ui:repeat var="p" value="${i.listParams()}">
+						 	<h:inputText id="qw${p}" value="${i.getParam(p)}"></h:inputText>
+						</ui:repeat>
+					</span>
+					<h:commandButton image="/resources/images/delete.png" title="Delete indicator" class="actionButton" />		
+					<br />
+				</ui:repeat>
+				
+				<br />
+	
+				<h:selectOneMenu value="#{indicatorNew}" id="indicatorNew" required="true">
+		    		<f:selectItem itemLabel="Add indicator..." noSelectionOption="true" />
+		    		<f:selectItems value="${Constants.getAllIndicators()}" />
+				</h:selectOneMenu>
 		
-
-		</ui:define>
+				<br />
+		
+			</form>
+			
+			<br />
+			
+			<a href="/coinalyzer/?train">Train NN</a>
+			<br />
+<h3>Neuronal network:</h3>
+			Learning rate <h:inputText id="learningRate" value="${appConfig.nn.learningRate}"></h:inputText>
+			<br />
+			Momentum <h:inputText id="momentum" value="${appConfig.nn.momentum}"></h:inputText>
+			<br />
+			Max. error <h:inputText id="maxError" value="${appConfig.nn.maxError}"></h:inputText>
+			<br />
+			Max. iterations <h:inputText id="maxIterations" value="${appConfig.nn.maxIterations}"></h:inputText>
+			<br />
+			Trainset to testset ratio
+			<p:slider for="txt2" display="output" style="width:200px" />  
+    		<h:outputText value="Trainset % "/>  
+            <h:outputText id="output" value="${appConfig.nn.trainsetRatio*100}"/>  
+        	<h:inputHidden id="txt2" value="${appConfig.nn.trainsetRatio*100}" />  
+        	<h:inputText id="triansetRatio" value="${appConfig.nn.trainsetRatio}"></h:inputText>
+    		
+			<br />
+			
+			</ui:define>
 	</ui:composition>
 </h:body>
 </html>

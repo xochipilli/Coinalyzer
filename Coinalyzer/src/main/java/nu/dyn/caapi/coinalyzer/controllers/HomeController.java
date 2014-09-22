@@ -15,7 +15,6 @@ import nu.dyn.caapi.coinalyzer.exceptions.PNGChartCreationException;
 import nu.dyn.caapi.coinalyzer.market.Constants;
 import nu.dyn.caapi.coinalyzer.market.MarketClient;
 import nu.dyn.caapi.coinalyzer.model.Analytics;
-import nu.dyn.caapi.coinalyzer.utils.TimeframeUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,13 +38,13 @@ public class HomeController {
 	private Analytics analytics;
 	@Autowired
 	private AppConfig appConfig;
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
 
 	/**
 	 * Simply selects the home view to render by returning its name.
 	 */
-	@RequestMapping(value = "/", method = RequestMethod.GET)
+	@RequestMapping(value = "/")
 	public String home(Locale locale, Model model, HttpServletRequest request) throws Exception {
 
 		logger.info("Welcome home! The client locale is {}.", locale);
@@ -67,15 +66,15 @@ public class HomeController {
 		String p_period = request.getParameter("period");
 		if (p_period != null) {
 			if (p_period.equals("5m")) {
-				client.plotChartForPeriod(Constants.period_5m);
+				client.plotChartForPeriod(Constants.period_5m, false);
 			} else if (p_period.equals("15m")) {
-				client.plotChartForPeriod(Constants.period_15m);
+				client.plotChartForPeriod(Constants.period_15m, false);
 			} else if (p_period.equals("30m")) {
-				client.plotChartForPeriod(Constants.period_30m);
+				client.plotChartForPeriod(Constants.period_30m, false);
 			} else if (p_period.equals("2h")) {
-				client.plotChartForPeriod(Constants.period_2h);
+				client.plotChartForPeriod(Constants.period_2h, false);
 			} else if (p_period.equals("4h")) {
-				client.plotChartForPeriod(Constants.period_4h);
+				client.plotChartForPeriod(Constants.period_4h, false);
 			}
 		}
 
@@ -90,7 +89,8 @@ public class HomeController {
 		model.addAttribute("period", client.getCurrentPeriod());		
 		model.addAttribute("timeframe", client.getTimeframe());	
 		model.addAttribute("Constants", new Constants());	
-		
+		model.addAttribute("appConfig", appConfig);
+	
 		return "home";
 		
 	}

@@ -42,6 +42,32 @@ public class AppConfig {
 	
 	public List<MyIndicator<?>> indicators = new ArrayList<MyIndicator<?>>(); // = new HashMap<String, MyIndicator<?>>();
 	
+	// Neuronal network
+	public NN nn = new NN();
+	public class NN {
+		public float learningRate = 0.2f;
+		public float momentum = 0.7f;
+		public float maxError = 0.01f;
+		public int maxIterations = 10000;
+		public float trainsetRatio = 0.8f;
+		
+		public float getLearningRate() {
+			return learningRate;
+		}
+		public float getMomentum() {
+			return momentum;
+		}
+		public float getMaxError() {
+			return maxError;
+		}
+		public int getMaxIterations() {
+			return maxIterations;
+		}
+		public float getTrainsetRatio() {
+			return trainsetRatio;
+		}
+	}
+
 	public AppConfig() throws DescribedNumberFormatException, DescribedIOException {
 		
 		XMLConfiguration config;
@@ -55,11 +81,11 @@ public class AppConfig {
 			
 			proxyHost = config.getString("proxy.host", proxyHost);
 		
-			// ----------- INDICATORS
+			// -- INDICATORS ------------
 			List<HierarchicalConfiguration> fields = config.configurationsAt("indicators(0).indicator");
 			// iterate over all indicators
 			for(HierarchicalConfiguration sub : fields) {
-				// create new empty indicator with name
+				// create new empty indicator with name from tag
 				String i_name = sub.getString("[@name]");
 				MyIndicator<?> indicator = new MyIndicator(i_name);
 				
@@ -78,7 +104,14 @@ public class AppConfig {
 				indicator.setParams(params);
 				indicators.add(indicator);
 			}
-			//---------------
+			
+			// -- NN ----------------
+				nn.learningRate = config.getFloat("nn.learningRate", nn.learningRate);
+				nn.momentum = config.getFloat("nn.momentum", nn.momentum);
+				nn.maxError = config.getFloat("nn.maxError", nn.maxError);
+				nn.maxIterations = config.getInt("nn.maxIterations", nn.maxIterations);
+				nn.trainsetRatio = config.getFloat("nn.trainsetRatio", nn.trainsetRatio);
+			// ----------------------
 			
 			try {
 				String port = config.getString("proxy.port", proxyPort.toString());
@@ -126,6 +159,12 @@ public class AppConfig {
 		}
 	}
 			
+	public List<MyIndicator<?>> getIndicators() {
+	
+		return indicators;
+		
+	}
+	
 	public String getCoinPrimary() {
 		return coinPrimary;
 	}
@@ -164,5 +203,9 @@ public class AppConfig {
 
 	public void setUseProxy(boolean useProxy) {
 		this.useProxy = useProxy;
+	}
+	
+	public NN getNn() {
+		return nn;
 	}
 }

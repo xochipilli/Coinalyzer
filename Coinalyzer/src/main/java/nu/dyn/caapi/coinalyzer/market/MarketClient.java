@@ -46,8 +46,8 @@ public class MarketClient {
 			
 			market.getAllSeries(false);
 			
-			plotChartForPeriod(timeframe.getPeriod());
-			
+			plotChartForPeriod(timeframe.getPeriod(), true);
+
 			initialized = true;
 			
 		} catch (ParseException e) {
@@ -71,6 +71,7 @@ public class MarketClient {
 	}
  
 	public void setTimeframeAll() throws PNGChartCreationException {
+		timeframe_str = "all";
 		chart.getChart(
 			chart.series.getTick(0).getBeginTime().toDate(),
 			chart.series.getTick(chart.series.getSize()-1).getBeginTime().toDate()
@@ -114,13 +115,25 @@ public class MarketClient {
 		return timeframe_str;
 	}
 	
-	public void plotChartForPeriod(int period) throws Exception {
+	/** Initialize chart with different period and plot it
+	 * @param period
+	 * @param plotAllChart Set chart to maximum time window from first to last tick ?
+	 */
+	public void plotChartForPeriod(int period, boolean plotAllChart) throws Exception {
 
 		market.t.setPeriod(period);
+		
 		chart.init(coinPair.getCurrencyPairId(), market.getCurrentSeries(),  market.t);
+
+		if (plotAllChart) {
+			market.t.setStart(chart.series.getTick(0).getBeginTime().toDate());
+			market.t.setEnd(chart.series.getTick(chart.series.getSize()-1).getBeginTime().toDate());
+			timeframe_str = "all";
+		}
+			
 		chart.getChart(true);
 	}
-
+	
 	public int getCurrentPeriod() {
 		return market.t.getPeriod();
 	}

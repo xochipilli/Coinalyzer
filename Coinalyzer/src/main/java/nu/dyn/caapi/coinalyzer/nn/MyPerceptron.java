@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Vector;
 
+import nu.dyn.caapi.coinalyzer.bot.AppConfig;
 import nu.dyn.caapi.coinalyzer.nn.normalizers.TanHNormalizer;
 
 import org.neuroph.core.NeuralNetwork;
@@ -12,14 +13,18 @@ import org.neuroph.core.data.DataSetRow;
 import org.neuroph.nnet.MultiLayerPerceptron;
 import org.neuroph.nnet.learning.MomentumBackpropagation;
 import org.neuroph.util.TransferFunctionType;
+import org.springframework.beans.factory.annotation.Autowired;
 
 //http://annstock.herokuapp.com/
 //http://www.slideshare.net/mring33/using-java
 //https://fedcsis.org/proceedings/2013/pliks/277.pdf
 public class MyPerceptron {
 
-	NeuralNetwork myPerceptron;
+	public NeuralNetwork perceptron;
 	DataNormalizer normalizer;
+	
+	@Autowired
+	AppConfig appConfig;
 
 	/**
 	 * Create NN
@@ -48,31 +53,25 @@ public class MyPerceptron {
 		layers.add(2 * 5 + 1);
 		layers.add(5);
 
-		myPerceptron = new MultiLayerPerceptron(layers,
+		perceptron = new MultiLayerPerceptron(layers,
 				TransferFunctionType.TANH);
 
 		MomentumBackpropagation myRule = new MomentumBackpropagation();
 		myRule.setBatchMode(false);
-		myRule.setLearningRate(0.2); // ?
-		myRule.setMomentum(0.7); // ?
-		myRule.setMaxError(0.01); // ?
-		myRule.setMaxIterations(10000); // ?
-		myRule.setNeuralNetwork(myPerceptron);
-		myPerceptron.setLearningRule(myRule);
+		myRule.setLearningRate(appConfig.nn.getLearningRate());
+		myRule.setMomentum(appConfig.nn.getMomentum());
+		myRule.setMaxError(appConfig.nn.getMaxError());
+		myRule.setMaxIterations(appConfig.nn.getMaxIterations());
+		myRule.setNeuralNetwork(perceptron);
+		
+		perceptron.setLearningRule(myRule);
 
 		// learn the training set
-		myPerceptron.learn(trainingSet);
+		perceptron.learn(trainingSet);
 
 		// test perceptron
 		System.out.println("Testing trained perceptron with " + trainingSet.getInputSize() + " inputs");
-		testNeuralNetwork(myPerceptron, trainingSet);
-
-		// save trained perceptron
-		// myPerceptron.save("mySamplePerceptron.nnet");
-
-		// load saved neural network
-		// NeuralNetwork loadedPerceptron =
-		// NeuralNetwork.load("mySamplePerceptron.nnet");
+		testNeuralNetwork(perceptron, trainingSet);
 
 		// test loaded neural network
 		// System.out.println("Testing loaded perceptron");
@@ -108,5 +107,17 @@ public class MyPerceptron {
 			System.out.println(" Output: " + Arrays.toString(networkOutput));
 		}
 
+	}
+	
+	public void load(String name) {
+
+		perceptron =  NeuralNetwork.createFromFile("perceptron_" + name + ".nn");
+	
+	}
+
+	public void save(String name) {
+
+		perceptron.save("perceptron_" + name + ".nn");
+	
 	}
 }
