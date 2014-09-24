@@ -85,6 +85,10 @@ public class HomeController {
 			analytics.init();
 			analytics.train();
 		}
+		if (request.getParameter("test") != null) {
+			analytics.test();
+			
+		}
 		
 		model.addAttribute("period", client.getCurrentPeriod());		
 		model.addAttribute("timeframe", client.getTimeframe());	
@@ -95,6 +99,13 @@ public class HomeController {
 		
 	}
 
+	@RequestMapping(value = "/logs", method = RequestMethod.GET)
+	public String logs(Locale locale, Model model) {
+
+		return "logs";
+
+	}
+	
 	@RequestMapping(value = "/config", method = RequestMethod.GET)
 	public String config(Locale locale, Model model) {
 

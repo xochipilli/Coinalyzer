@@ -3,6 +3,7 @@ package nu.dyn.caapi.coinalyzer.model;
 import java.util.ArrayList;
 import java.util.concurrent.Future;
 
+import nu.dyn.caapi.coinalyzer.bot.AppConfig;
 import nu.dyn.caapi.coinalyzer.controllers.HomeController;
 import nu.dyn.caapi.coinalyzer.market.CoinTick;
 import nu.dyn.caapi.coinalyzer.market.MarketClient;
@@ -20,71 +21,76 @@ import org.springframework.stereotype.Service;
 public class Analytics {
 	@Autowired
 	private MarketClient client;
+	@Autowired
+	AppConfig appConfig;
 
-	private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
+	private static final Logger logger = LoggerFactory.getLogger(Analytics.class);
 
-	MyPerceptron nn;
-	ArrayList<TrainDataItem> dataset_1;
-	ArrayList<TrainDataItem> dataset_2;
-	ArrayList<TrainDataItem> dataset_3;
-	ArrayList<TrainDataItem> dataset_4;
-	ArrayList<TrainDataItem> dataset_5;
-
-	MyPerceptron p1;
-	MyPerceptron p2;
-	MyPerceptron p3;
-	MyPerceptron p4;
-	MyPerceptron p5;
+	ArrayList<MyPerceptron> perceptrons;
 	
+	/** Initialize all perceptrons 
+	 */
 	public void init() {
-		dataset_1 = getTrainingData(client.market.series_4h);
-		dataset_2 = getTrainingData(client.market.series_2h);
-		dataset_3 = getTrainingData(client.market.series_30m);
-		dataset_4 = getTrainingData(client.market.series_15m);
-		dataset_5 = getTrainingData(client.market.series_5m);
+		
+		logger.info("Initializing perceptrons with "+appConfig.nn);
+		
+		perceptrons = new ArrayList<MyPerceptron>();
+		perceptrons.add(getInitializedPerceptron(client.market.series_5m, "Perceptron 5m"));
+		perceptrons.add(getInitializedPerceptron(client.market.series_15m, "Perceptron 15m"));
+		perceptrons.add(getInitializedPerceptron(client.market.series_30m, "Perceptron 30m"));
+		perceptrons.add(getInitializedPerceptron(client.market.series_2h, "Perceptron 2h"));
+		perceptrons.add(getInitializedPerceptron(client.market.series_4h, "Perceptron 4h"));
+		
 	}
-
-	private ArrayList<TrainDataItem> getTrainingData(ArrayList<CoinTick> series) {
-
-		ArrayList<TrainDataItem> dataset = new ArrayList<TrainDataItem>();
-
+	
+	/** Return new named perceptron with train and test datasets for configured dates 
+	 * @param series Input cointick serie
+	 * @param name
+	 */
+	private MyPerceptron getInitializedPerceptron(ArrayList<CoinTick> series, String name) {
+		
+		ArrayList<TrainDataItem> testset  = new ArrayList<TrainDataItem>();
+		ArrayList<TrainDataItem> trainset = new ArrayList<TrainDataItem>();
+		
 		for (int i = 0; i < series.size() - 1; i++) {
-			TrainDataItem tdi = new TrainDataItem(series.get(i),
-					series.get(i + 1));
-			dataset.add(tdi);
+			// dataset start
+			if (! series.get(i).getBeginTime().isBefore(appConfig.nn.getTraindataStart())) {
+				TrainDataItem tdi = new TrainDataItem(series.get(i), series.get(i + 1));
+				// test data start
+				if (! series.get(i).getBeginTime().isBefore(appConfig.nn.getTestdataStart())) {
+					testset.add(tdi);
+				// train data set
+				} else { 
+					trainset.add(tdi);
+				}
+			}
 		}
 
-		return dataset;
+		return new MyPerceptron(trainset, testset, name, appConfig.nn);
 	}
 
+	/** Train all perceptrons
+	 * @return
+	 */
 	@Async
 	public Future<String> train() { // throws InterruptedException {
-		logger.info("Training perceptron P1");
-		p1 = new MyPerceptron(dataset_1);
-		p1.save("p1");
-		logger.info("Perceptron p1 finished learning");
 
-		logger.info("Training perceptron P2");
-		p2 = new MyPerceptron(dataset_2);
-		p1.save("p2");
-		logger.info("Perceptron p2 finished learning");
-		
-		logger.info("Training perceptron P3");
-		p3 = new MyPerceptron(dataset_3);
-		p1.save("p3");
-		logger.info("Perceptron p3 finished learning");
-		
-		logger.info("Training perceptron P4");
-		p4 = new MyPerceptron(dataset_4);
-		p1.save("p4");
-		logger.info("Perceptron p4 finished learning");
-		
-		logger.info("Training perceptron P5");
-		p5 = new MyPerceptron(dataset_5);
-		p1.save("p5");
-		logger.info("Perceptron p5 finished learning");
+		for (MyPerceptron p: perceptrons)
+			p.train();
+	
+		return new AsyncResult<String>(perceptrons.toString());
+	}
 
-		return new AsyncResult<String>(p1.toString());
+	/** Train all perceptrons
+	 * @return
+	 */
+	@Async
+	public Future<String> test() { // throws InterruptedException {
+
+		for (MyPerceptron p: perceptrons)
+			p.test();
+	
+		return new AsyncResult<String>(perceptrons.toString());
 	}
 
 }

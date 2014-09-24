@@ -18,6 +18,10 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import org.neuroph.core.learning.stop.MaxErrorStop;
 import org.springframework.stereotype.Component;
 
 //http://www.programcreek.com/java-api-examples/index.php?api=org.apache.commons.configuration.XMLConfiguration
@@ -48,9 +52,17 @@ public class AppConfig {
 		public float learningRate = 0.2f;
 		public float momentum = 0.7f;
 		public float maxError = 0.01f;
-		public int maxIterations = 10000;
+		public int maxIterations = 500;
 		public float trainsetRatio = 0.8f;
-		
+		DateTime traindataStart = DateTime.parse("8/8/2014", DateTimeFormat.forPattern("dd/MM/yyyy"));
+		DateTime testdataStart = DateTime.parse("9/9/2014", DateTimeFormat.forPattern("dd/MM/yyyy"));
+	
+		public DateTime getTraindataStart() {
+			return traindataStart;
+		}
+		public DateTime getTestdataStart() {
+			return testdataStart;
+		}
 		public float getLearningRate() {
 			return learningRate;
 		}
@@ -65,6 +77,10 @@ public class AppConfig {
 		}
 		public float getTrainsetRatio() {
 			return trainsetRatio;
+		}
+		@Override
+		public String toString() {
+			return "train data start: "+getTraindataStart()+" / test data start: "+getTestdataStart()+" / learning rate: "+learningRate+" / momentum: "+momentum+" / max error: "+maxError+" / max iterations: "+maxIterations+" / trainset ratio: "+trainsetRatio;
 		}
 	}
 
@@ -111,6 +127,15 @@ public class AppConfig {
 				nn.maxError = config.getFloat("nn.maxError", nn.maxError);
 				nn.maxIterations = config.getInt("nn.maxIterations", nn.maxIterations);
 				nn.trainsetRatio = config.getFloat("nn.trainsetRatio", nn.trainsetRatio);
+				
+				DateTimeFormatter f = DateTimeFormat.forPattern("dd/MM/yyyy");
+				try {
+					nn.traindataStart= f.parseDateTime(config.getString("nn.traindataStart", nn.traindataStart.toString()));
+					nn.testdataStart= f.parseDateTime(config.getString("nn.testdataStart", nn.testdataStart.toString()));
+				} catch (IllegalArgumentException e) {
+					//TODO: create and throw new exception
+				}
+				
 			// ----------------------
 			
 			try {
@@ -153,6 +178,20 @@ public class AppConfig {
 			config.setProperty("proxy.host", proxyHost);
 			config.setProperty("proxy.port", proxyPort.toString());
 			config.setProperty("proxy.useProxy", useProxy);
+			
+			// TODO:
+//			for (MyIndicator<?> i: indicators)
+//				config.setaddProperty("indicators.indicator", i.);
+//			
+			
+			config.setProperty("neuronalNetwork.learningRate", nn.learningRate);
+			config.setProperty("neuronalNetwork.momentum", nn.momentum);
+			config.setProperty("neuronalNetwork.maxError", nn.maxError);
+			config.setProperty("neuronalNetwork.maxIterations", nn.maxIterations);
+			config.setProperty("neuronalNetwork.trainsetRatio", nn.trainsetRatio);
+			config.setProperty("neuronalNetwork.traindataStart", nn.getTraindataStart());
+			config.setProperty("neuronalNetwork.testdataStart", nn.getTestdataStart());
+		
 			config.save();
 		} catch (ConfigurationException e) {
 			throw new DescribedIOException("Could not write configuration file " + configurationFile, e);

@@ -77,7 +77,14 @@ Timeframe:  &nbsp;
 			
 			<a href="/coinalyzer/?train">Train NN</a>
 			<br />
+			<a href="/coinalyzer/?test">Test NN</a>
+			<br />
 <h3>Neuronal network:</h3>
+			Traindata start <p:calendar id="trainDate" value="#{calendarView.trainDate}" />
+ 
+			<br />
+			Testdata start <p:calendar id="testDate" value="#{calendarView.testDate}" />
+			<br />
 			Learning rate <h:inputText id="learningRate" value="${appConfig.nn.learningRate}"></h:inputText>
 			<br />
 			Momentum <h:inputText id="momentum" value="${appConfig.nn.momentum}"></h:inputText>
@@ -94,6 +101,7 @@ Timeframe:  &nbsp;
         	<h:inputText id="triansetRatio" value="${appConfig.nn.trainsetRatio}"></h:inputText>
     		
 			<br />
+		
 			
 			</ui:define>
 	</ui:composition>
