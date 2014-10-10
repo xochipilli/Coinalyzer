@@ -52,7 +52,7 @@ public class AppConfig {
 		public float learningRate = 0.2f;
 		public float momentum = 0.7f;
 		public float maxError = 0.01f;
-		public int maxIterations = 500;
+		public int maxIterations = 1000;
 		public float trainsetRatio = 0.8f;
 		DateTime traindataStart = DateTime.parse("8/8/2014", DateTimeFormat.forPattern("dd/MM/yyyy"));
 		DateTime testdataStart = DateTime.parse("9/9/2014", DateTimeFormat.forPattern("dd/MM/yyyy"));

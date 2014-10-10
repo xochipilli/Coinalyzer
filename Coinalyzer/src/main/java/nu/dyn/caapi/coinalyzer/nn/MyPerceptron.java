@@ -2,10 +2,11 @@ package nu.dyn.caapi.coinalyzer.nn;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.UUID;
 import java.util.Vector;
 
 import nu.dyn.caapi.coinalyzer.bot.AppConfig;
-import nu.dyn.caapi.coinalyzer.controllers.HomeController;
 import nu.dyn.caapi.coinalyzer.nn.normalizers.TanHNormalizer;
 
 import org.neuroph.core.NeuralNetwork;
@@ -14,7 +15,6 @@ import org.neuroph.core.data.DataSetRow;
 import org.neuroph.core.events.LearningEvent;
 import org.neuroph.core.events.LearningEventListener;
 import org.neuroph.nnet.MultiLayerPerceptron;
-import org.neuroph.nnet.learning.BackPropagation;
 import org.neuroph.nnet.learning.MomentumBackpropagation;
 import org.neuroph.util.TransferFunctionType;
 import org.slf4j.Logger;
@@ -32,6 +32,12 @@ public class MyPerceptron implements LearningEventListener {
 	
 	DataSet train_dataset;
 	DataSet test_dataset;
+	
+	static final int INPUT_NEURONS = 5;		// ohlcv
+	static final int OUTPUT_NEURONS = 5;	// ohlcv
+	static final int HIDDEN_NEURONS = 2 * INPUT_NEURONS + 1;
+	
+	PerceptronError error;
 	
 	private static final Logger logger = LoggerFactory.getLogger(MyPerceptron.class);
 	
@@ -60,12 +66,14 @@ public class MyPerceptron implements LearningEventListener {
 		
 		// create perceptron neural network
 		Vector<Integer> layers = new Vector<Integer>();
-		layers.add(5);
-		layers.add(2 * 5 + 1);
-		layers.add(5);
+		layers.add(INPUT_NEURONS);
+		layers.add(HIDDEN_NEURONS);
+		layers.add(OUTPUT_NEURONS);
 
 		perceptron = new MultiLayerPerceptron(layers, TransferFunctionType.TANH);
 
+		error = new PerceptronError(nn_config.maxIterations);
+		
 		MomentumBackpropagation prop = new MomentumBackpropagation();
 		prop.setBatchMode(false);
 		prop.setLearningRate(nn_config.getLearningRate());
@@ -76,7 +84,6 @@ public class MyPerceptron implements LearningEventListener {
 		prop.addListener(this);
 		
 		perceptron.setLearningRule(prop);
-		
 	
 	}
 	
@@ -141,60 +148,42 @@ public class MyPerceptron implements LearningEventListener {
 	
 	@Override
 	public void handleLearningEvent(LearningEvent event) {
-		 final MomentumBackpropagation bp = (MomentumBackpropagation) event.getSource();
-		 System.out.println(bp.getCurrentIteration() + ". iteration : " + bp.getTotalNetworkError());
-		 
+
+		final MomentumBackpropagation bp = (MomentumBackpropagation) event.getSource();
 		
-//	    BackPropagation bp = (BackPropagation) le.getSource();
-//	    net = (MultiLayerPerceptron) bp.getNeuralNetwork();
-//
-//	    iterator = validationSet.iterator();
-//
-//	    while (iterator.hasNext()) {
-//	        DataSetRow dataSetRow = iterator.next();
-//	        net.setInput(dataSetRow.getInput());
-//	        net.calculate();
-//
-//	        double[] desiredOutput  = dataSetRow.getDesiredOutput();
-//	        double[] output         = net.getOutput();
-//
-//	        double[] outputError    = new double[desiredOutput.length];
-//
-//	        for (int i=0; i<output.length; i++) {
-//	            outputError[i] = desiredOutput[i] - output[i];
-//	        }
-//
-//	        errorFunction.addOutputError(outputError);
-//
-//	    }
-//
-//	    currentError = errorFunction.getTotalError();
-//	    errorFunction.reset();
-//
-//	    if(currentError<minError){
-//	        minError = currentError;
-//	        iterationAtMinimum = bp.getCurrentIteration();
-//	        net.save("temporaryNeuralNetwork.nnet");
-//	        System.out.println("Minimum");
-//	    }
-//
-//	    if(currentError>previousError){
-//	        iterationsCounter++;
-//	    }
-//	    else{
-//	        iterationsCounter = 0;
-//	    }
-//
-//	    if(iterationsCounter >= MAXOVERFITTINGITERATIONS){
-//	        net.stopLearning();
-//	        net = (MultiLayerPerceptron)
-//	                MultiLayerPerceptron.createFromFile
-//	                ("temporaryNeuralNetwork.nnet");
-//	        System.out.println("\nOVERFITTING - Minimum got at iteration "+iterationAtMinimum);
-//	    }
-//	    else
-//	        previousError = currentError;
+//		logger.info(bp.getCurrentIteration() + ". iteration : " + bp.getTotalNetworkError());
+		 
+		perceptron = (MultiLayerPerceptron) bp.getNeuralNetwork();
+
+	    Iterator<DataSetRow> iterator = train_dataset.getRows().iterator();
+
+	    while (iterator.hasNext()) {
+	        DataSetRow dataSetRow = iterator.next();
+	        perceptron.setInput(dataSetRow.getInput());
+	        perceptron.calculate();
+
+	        double[] desiredOutput  = dataSetRow.getDesiredOutput();
+	        double[] output         = perceptron.getOutput();
+
+	        error.addOutputError(output, desiredOutput);
+	    }
+
+	    boolean newMinError = error.isNewMinError();
+	    
+	    if (newMinError) {
+	        save(name);
+	    } 
+	    
+	    if (! newMinError || error.isLastIteration()) {
+	    	perceptron.stopLearning();
+	    	load(name);
+	        logger.info("\nMinimum got at iteration "+error.getMinErrorIteration());
+		} else {
+			error.nextIteration();
+		}
+	    	
 	}
+	
 	
 	public void load(String name) {
 
