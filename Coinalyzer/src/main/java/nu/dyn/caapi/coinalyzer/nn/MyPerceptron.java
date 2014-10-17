@@ -3,7 +3,6 @@ package nu.dyn.caapi.coinalyzer.nn;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.UUID;
 import java.util.Vector;
 
 import nu.dyn.caapi.coinalyzer.bot.AppConfig;
@@ -25,7 +24,7 @@ import org.slf4j.LoggerFactory;
 //https://fedcsis.org/proceedings/2013/pliks/277.pdf
 public class MyPerceptron implements LearningEventListener {
 
-	String name;
+	public String name;
 	
 	public NeuralNetwork perceptron;
 	DataNormalizer normalizer;
@@ -37,8 +36,8 @@ public class MyPerceptron implements LearningEventListener {
 	static final int OUTPUT_NEURONS = 5;	// ohlcv
 	static final int HIDDEN_NEURONS = 2 * INPUT_NEURONS + 1;
 	
-	PerceptronError error;
-	
+	public PerceptronError error;
+		
 	private static final Logger logger = LoggerFactory.getLogger(MyPerceptron.class);
 	
 	/**
@@ -73,7 +72,7 @@ public class MyPerceptron implements LearningEventListener {
 		perceptron = new MultiLayerPerceptron(layers, TransferFunctionType.TANH);
 
 		error = new PerceptronError(nn_config.maxIterations);
-		
+       
 		MomentumBackpropagation prop = new MomentumBackpropagation();
 		prop.setBatchMode(false);
 		prop.setLearningRate(nn_config.getLearningRate());
@@ -102,9 +101,9 @@ public class MyPerceptron implements LearningEventListener {
 	
 	public void train() {
 
-		logger.info("Training perceptron " + name);
+		logger.info("Training " + name + " with dataset of size " + train_dataset.size());
 		perceptron.learn(train_dataset);
-		logger.info("Finished training perceptron " + name);
+//		logger.info("Finished training " + name);
 		
 	}
 	
@@ -138,6 +137,8 @@ public class MyPerceptron implements LearningEventListener {
 			// double[] n_networkOutput =
 			// normalizer.denormalize(neuralNet.getOutput());
 
+			error.addTestsetError(networkOutput, testSet.getRowAt(i).getDesiredOutput());
+			
 			logger.info("Input: "
 					+ Arrays.toString(normalizer.denormalize(testSet
 							.getRowAt(i).getInput())));
@@ -149,38 +150,49 @@ public class MyPerceptron implements LearningEventListener {
 	@Override
 	public void handleLearningEvent(LearningEvent event) {
 
-		final MomentumBackpropagation bp = (MomentumBackpropagation) event.getSource();
-		
-//		logger.info(bp.getCurrentIteration() + ". iteration : " + bp.getTotalNetworkError());
-		 
-		perceptron = (MultiLayerPerceptron) bp.getNeuralNetwork();
 
-	    Iterator<DataSetRow> iterator = train_dataset.getRows().iterator();
+	final MomentumBackpropagation bp = (MomentumBackpropagation) event.getSource();
+	logger.info(bp.getCurrentIteration() + ". iteration : " + bp.getTotalNetworkError());
 
-	    while (iterator.hasNext()) {
-	        DataSetRow dataSetRow = iterator.next();
-	        perceptron.setInput(dataSetRow.getInput());
-	        perceptron.calculate();
+	error.addError(bp.getTotalNetworkError());
 
-	        double[] desiredOutput  = dataSetRow.getDesiredOutput();
-	        double[] output         = perceptron.getOutput();
-
-	        error.addOutputError(output, desiredOutput);
-	    }
-
-	    boolean newMinError = error.isNewMinError();
+//
+//		final MomentumBackpropagation bp = (MomentumBackpropagation) event.getSource();
+//		
+////		logger.info(bp.getCurrentIteration() + ". iteration : " + bp.getTotalNetworkError());
+//		 
+//		perceptron = (MultiLayerPerceptron) bp.getNeuralNetwork();
+//
+//	    Iterator<DataSetRow> iterator = train_dataset.getRows().iterator();
+//
+//	    while (iterator.hasNext()) {
+//	        DataSetRow dataSetRow = iterator.next();
+//	        perceptron.setInput(dataSetRow.getInput());
+//	        perceptron.calculate();
+//
+//	        double[] desiredOutput  = dataSetRow.getDesiredOutput();
+//	        double[] output         = perceptron.getOutput();
+//
+//	        error.addOutputError(output, desiredOutput);
+//	    }
+//
+//	    boolean newMinError = error.isNewMinError();
+//	    
+//	    if (newMinError) {
+//	        save(name);
+//	    } 
+//	    
+//	    if (! newMinError || error.isLastIteration()) {
+//	    	//perceptron.stopLearning();
+//	    	load(name);
+//	    	bp.stopLearning();
+//	    	perceptron.stopLearning();
+//	    	logger.info("Minimum got at iteration "+error.getMinErrorIteration());
+//	        
+//		} else {
+//			error.nextIteration();
+//		}
 	    
-	    if (newMinError) {
-	        save(name);
-	    } 
-	    
-	    if (! newMinError || error.isLastIteration()) {
-	    	perceptron.stopLearning();
-	    	load(name);
-	        logger.info("\nMinimum got at iteration "+error.getMinErrorIteration());
-		} else {
-			error.nextIteration();
-		}
 	    	
 	}
 	

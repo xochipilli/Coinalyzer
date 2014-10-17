@@ -54,7 +54,8 @@ public class AppConfig {
 		public float maxError = 0.01f;
 		public int maxIterations = 1000;
 		public float trainsetRatio = 0.8f;
-		DateTime traindataStart = DateTime.parse("8/8/2014", DateTimeFormat.forPattern("dd/MM/yyyy"));
+		public int maxDatasetSize = 25;
+		DateTime traindataStart = DateTime.parse("8/8/2013", DateTimeFormat.forPattern("dd/MM/yyyy"));
 		DateTime testdataStart = DateTime.parse("9/9/2014", DateTimeFormat.forPattern("dd/MM/yyyy"));
 	
 		public DateTime getTraindataStart() {
@@ -77,6 +78,9 @@ public class AppConfig {
 		}
 		public float getTrainsetRatio() {
 			return trainsetRatio;
+		}
+		public int getMaxDatasetSize() {
+			return maxDatasetSize;
 		}
 		@Override
 		public String toString() {
@@ -189,6 +193,7 @@ public class AppConfig {
 			config.setProperty("neuronalNetwork.maxError", nn.maxError);
 			config.setProperty("neuronalNetwork.maxIterations", nn.maxIterations);
 			config.setProperty("neuronalNetwork.trainsetRatio", nn.trainsetRatio);
+			config.setProperty("neuronalNetwork.maxDatasetSize", nn.maxDatasetSize);
 			config.setProperty("neuronalNetwork.traindataStart", nn.getTraindataStart());
 			config.setProperty("neuronalNetwork.testdataStart", nn.getTestdataStart());
 		

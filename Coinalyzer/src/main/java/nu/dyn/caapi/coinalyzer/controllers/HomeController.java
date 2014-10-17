@@ -3,6 +3,7 @@ package nu.dyn.caapi.coinalyzer.controllers;
 import java.io.OutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 
@@ -15,6 +16,7 @@ import nu.dyn.caapi.coinalyzer.exceptions.PNGChartCreationException;
 import nu.dyn.caapi.coinalyzer.market.Constants;
 import nu.dyn.caapi.coinalyzer.market.MarketClient;
 import nu.dyn.caapi.coinalyzer.model.Analytics;
+import nu.dyn.caapi.coinalyzer.nn.MyPerceptron;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +25,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
@@ -46,8 +49,6 @@ public class HomeController {
 	 */
 	@RequestMapping(value = "/")
 	public String home(Locale locale, Model model, HttpServletRequest request) throws Exception {
-
-		logger.info("Welcome home! The client locale is {}.", locale);
 
 		// TODO: move to init()?
 		if (! client.initialized) {
@@ -139,8 +140,34 @@ public class HomeController {
 		stream.write(client.getChart());
 
 	}
-	
-	 
+
+	/**
+	 * Neuronal network
+	 */
+	@RequestMapping(value = "/nn")
+	public String nn(Locale locale, Model model, HttpServletRequest request) throws Exception {
+		 
+//		model.addAttribute("nn_err", analytics.getPerceptronNames());
+		
+		return "nn";
+		
+	}
+
+
+	@RequestMapping("/nn/learning_errors.png")
+	public void renderErrorChart(OutputStream stream) throws Exception {
+
+	    stream.write(analytics.getErrorChart());
+
+	}
+
+	@RequestMapping("/nn/testing_errors.png")
+	public void renderTestErrorChart(OutputStream stream) throws Exception {
+
+	    stream.write(analytics.getErrorChart_testset());
+
+	}
+
 	@ExceptionHandler(LoggedException.class)
 	public ModelAndView handleException(HttpServletRequest request, Exception ex){
 	  
