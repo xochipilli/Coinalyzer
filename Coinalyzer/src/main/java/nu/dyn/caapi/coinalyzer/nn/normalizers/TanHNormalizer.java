@@ -37,7 +37,8 @@ public class TanHNormalizer extends DataNormalizer {
 			arr[i+1] = tdi.i_low;
 			arr[i+2] = tdi.i_high;
 			arr[i+3] = tdi.i_close;
-			arr[i+4] = tdi.i_volume;
+			//TODO:
+			//			arr[i+4] = tdi.i_volume;
 		
 //			arr[i+5] = tdi.o_open;
 //			arr[i+6] = tdi.o_low;
@@ -66,7 +67,8 @@ public class TanHNormalizer extends DataNormalizer {
 			tdi.norm_i_low = 0.5 * ( tanh.value(0.01 * (tdi.i_low - value_mean) /  value_deviation ) + 1 );
 			tdi.norm_i_high = 0.5 * ( tanh.value(0.01 * (tdi.i_high - value_mean) /  value_deviation ) + 1 );
 			tdi.norm_i_close = 0.5 * ( tanh.value(0.01 * (tdi.i_close - value_mean) /  value_deviation ) + 1 );
-			tdi.norm_i_volume = 0.5 * ( tanh.value(0.01 * (tdi.i_volume - value_mean) /  value_deviation ) + 1 );
+			//TODO:
+			//	tdi.norm_i_volume = 0.5 * ( tanh.value(0.01 * (tdi.i_volume - value_mean) /  value_deviation ) + 1 );
 
 //			tdi.o_open = 0.5 * ( tanh.value(0.01 * (tdi.o_open - value_mean) /  value_deviation ) + 1 );
 //			tdi.o_low = 0.5 * ( tanh.value(0.01 * (tdi.o_low - value_mean) /  value_deviation ) + 1 );
@@ -100,7 +102,6 @@ public class TanHNormalizer extends DataNormalizer {
 		return denorm_dataset;
 		
 	}
-
 	
 	public double[] denormalize(double[] data) {
 		

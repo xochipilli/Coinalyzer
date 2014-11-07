@@ -142,7 +142,8 @@ public class MyPerceptron implements LearningEventListener {
 			logger.info("Input: "
 					+ Arrays.toString(normalizer.denormalize(testSet
 							.getRowAt(i).getInput())));
-			logger.info(" Output: " + Arrays.toString(networkOutput));
+			logger.info(" Output : " + Arrays.toString(networkOutput));
+			logger.info(" Desired: " + Arrays.toString(testSet.getRowAt(i).getDesiredOutput()));
 		}
 
 	}
