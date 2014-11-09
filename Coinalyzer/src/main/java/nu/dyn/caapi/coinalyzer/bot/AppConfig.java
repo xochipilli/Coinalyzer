@@ -37,7 +37,7 @@ public class AppConfig {
 	
 	public String proxyHost = "sapproxy";
 	public Integer proxyPort = 3128;
-	public boolean useProxy = true;
+	public boolean useProxy = false;
 	
 	//public static final String projectDirectory = "coinalyzer/"; //TODO: ?
 
